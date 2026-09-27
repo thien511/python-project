@@ -23,3 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 .venv/*
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.idea/
+.vscode/

@@ -4,13 +4,24 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import User
 from .serializers import RegisterSerializer, UserSerializer
 from rest_framework import status
-from .models import Product, Category, Cart, CartItem, Order, OrderItem
+from .models import Product, Category, Cart, CartItem, Order, OrderItem, UserProfile
 from .serializers import ProductSerializer, CategorySerializer, CartSerializer, CartItemSerializer
 
 @api_view(['GET'])
 def get_products(request):
+    category_id = request.GET.get('category')
+
     products = Product.objects.all()
-    serializer = ProductSerializer(products, many=True)
+
+    if category_id:
+        products = products.filter(category_id=category_id)
+
+    serializer = ProductSerializer(
+        products,
+        many=True,
+        context={'request': request}
+    )
+
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -121,3 +132,122 @@ def register_view(request):
         user = serializer.save()
         return Response({"message": "User created successfully", "user": UserSerializer(user).data}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_product(request):
+
+    try:
+        profile = request.user.userprofile
+    except UserProfile.DoesNotExist:
+        return Response(
+            {'error': 'User profile not found'},
+            status=404
+        )
+
+    if not profile.is_seller:
+        return Response(
+            {'error': 'Only sellers can create products'},
+            status=403
+        )
+
+    serializer = ProductSerializer(data=request.data)
+
+    if serializer.is_valid():
+        product = serializer.save(seller=request.user)
+
+        return Response(
+            ProductSerializer(product).data,
+            status=status.HTTP_201_CREATED
+        )
+
+    return Response(
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST
+    )
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_product(request, pk):
+    try:
+        profile = request.user.userprofile
+    except UserProfile.DoesNotExist:
+        return Response(
+            {'error': 'User profile not found'},
+            status=404
+        )
+
+    if not profile.is_seller:
+        return Response(
+            {'error': 'Only sellers can update products'},
+            status=403
+        )
+
+    try:
+        product = Product.objects.get(id=pk)
+    except Product.DoesNotExist:
+        return Response(
+            {'error': 'Product not found'},
+            status=404
+        )
+
+    # Chỉ seller sở hữu sản phẩm mới được sửa
+    if product.seller != request.user:
+        return Response(
+            {'error': 'You can only update your own products'},
+            status=403
+        )
+
+    serializer = ProductSerializer(
+        product,
+        data=request.data
+    )
+
+    if serializer.is_valid():
+        product = serializer.save()
+
+        return Response(
+            ProductSerializer(product).data,
+            status=200
+        )
+
+    return Response(
+        serializer.errors,
+        status=400
+    )
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_product(request, pk):
+    try:
+        profile = request.user.userprofile
+    except UserProfile.DoesNotExist:
+        return Response(
+            {'error': 'User profile not found'},
+            status=404
+        )
+
+    if not profile.is_seller:
+        return Response(
+            {'error': 'Only sellers can delete products'},
+            status=403
+        )
+
+    try:
+        product = Product.objects.get(id=pk)
+    except Product.DoesNotExist:
+        return Response(
+            {'error': 'Product not found'},
+            status=404
+        )
+
+    # Chỉ seller sở hữu sản phẩm mới được xóa
+    if product.seller != request.user:
+        return Response(
+            {'error': 'You can only delete your own products'},
+            status=403
+        )
+
+    product.delete()
+
+    return Response(
+        {'message': 'Product deleted successfully'},
+        status=200
+    )
