@@ -9,24 +9,75 @@ class Category(models.Model):
         return self.name
 
 class Product(models.Model):
-    category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
+    category = models.ForeignKey(
+        Category,
+        related_name='products',
+        on_delete=models.CASCADE
+    )
+    seller = models.ForeignKey(
+        User,
+        related_name='products',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.URLField(max_length=500, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    user_rating = models.FloatField(null=True, blank=True)
+
+    series = models.CharField(max_length=255, blank=True)
+    color = models.CharField(max_length=100, blank=True)
+    suitable_for = models.CharField(max_length=255, blank=True)
+    type = models.CharField(max_length=100, blank=True)
+
+    processor_brand = models.CharField(max_length=100, blank=True)
+    processor_name = models.CharField(max_length=255, blank=True)
+    processor_variant = models.CharField(max_length=255, blank=True)
+
+    ram_type = models.CharField(max_length=100, blank=True)
+    ram = models.CharField(max_length=100, blank=True)
+    ssd_capacity = models.CharField(max_length=100, blank=True)
+
+    graphic_processor = models.CharField(max_length=255, blank=True)
+    dedicated_graphic_memory = models.CharField(max_length=100, blank=True)
+
+    screen_size = models.CharField(max_length=100, blank=True)
+    screen_resolution = models.CharField(max_length=100, blank=True)
+    touchscreen = models.CharField(max_length=20, blank=True)
+
+    weight = models.CharField(max_length=100, blank=True)
+    operating_system = models.CharField(max_length=100, blank=True)
+
+    usb_port = models.TextField(blank=True)
+    hdmi_port = models.CharField(max_length=255, blank=True)
+    bluetooth = models.CharField(max_length=100, blank=True)
+    wireless_lan = models.CharField(max_length=255, blank=True)
+    web_camera = models.CharField(max_length=255, blank=True)
+    screen_type = models.TextField(blank=True)
+
+    backlit_keyboard = models.CharField(max_length=20, blank=True)
+    fingerprint_sensor = models.CharField(max_length=20, blank=True)
+
+    battery_cell = models.CharField(max_length=100, blank=True)
+    power_supply = models.CharField(max_length=255, blank=True)
+    dimensions = models.CharField(max_length=255, blank=True)
+    warranty_summary = models.TextField(blank=True)
+    sales_package = models.TextField(blank=True)
 
     def __str__(self):
         return self.name
-    
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=15, blank=True)
     address = models.TextField(blank=True)
+    is_seller = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.username
-    
 class Order(models.Model):
     PAYMENT_METHODS = [
         ('COD', 'Cash on delivery'),
