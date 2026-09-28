@@ -32,7 +32,7 @@ export default function Checkout() {
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleConfirm = async () => {
+  const handleConfirm = async (e) => {
     setIsProcessing(true);
 
     e.preventDefault();
@@ -138,7 +138,7 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {/* Option 2: Cash Payment */}
+              {/* Option 2: Cash Payment */}  
               <div
                 onClick={() => setSelectedMethod("cash")}
                 className={`relative group cursor-pointer p-5 rounded-2xl border-2 transition-all duration-300 flex items-start gap-4 ${

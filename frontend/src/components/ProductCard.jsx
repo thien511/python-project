@@ -4,7 +4,7 @@ function ProductCard({ product }) {
   const BASEURL = import.meta.env.VITE_DJANGO_BASE_URL;
   return (
     <Link to={`/product/${product.id}`}>
-      <div className="bg-white rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-transform p-4 cursor-pointer">
+      <div className="bg-indigo-950/40 border-indigo-500 border-2 bg-white rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-transform p-4 cursor-pointer">
         <img
           src={`http://localhost:8000/api/products${product.image}`}
           alt={product.name}
