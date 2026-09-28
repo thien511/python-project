@@ -34,7 +34,12 @@ def clean(value):
         return ""
     return str(value).strip()
 
+count = 0
+
 for _, row in df.iterrows():
+    if(count >= 10):
+        break
+    count += 1
     Product.objects.create(
         category=category,
 

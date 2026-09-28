@@ -1,7 +1,13 @@
 import { Link } from "react-router-dom";
 
+const formatPrice = (price) => {
+  if(!price) return "N/A";
+  return new Intl.NumberFormat("vi-VN").format(price);
+}
+
 function ProductCard({ product }) {
   const BASEURL = import.meta.env.VITE_DJANGO_BASE_URL;
+  const price = formatPrice(product.price);
   return (
     <Link to={`/product/${product.id}`}>
       <div className="bg-white rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-transform p-4 cursor-pointer">
@@ -13,7 +19,7 @@ function ProductCard({ product }) {
         <h2 className="text-lg font-semibold text-gray-800 truncate">
           {product.name}
         </h2>
-        <p className="text-gray-600 font-medium">${product.price}</p>
+        <p className="text-gray-600 font-medium">{price}đ</p>
       </div>
     </Link>
   );
