@@ -8,6 +8,7 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import PrivateRouter from "./components/PrivateRouter.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
+import Checkout from "./pages/Checkout.jsx";
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/check" element={<Checkout />} />
+
         </Routes>
       </Router>
     </>
