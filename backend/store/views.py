@@ -121,3 +121,33 @@ def register_view(request):
         user = serializer.save()
         return Response({"message": "User created successfully", "user": UserSerializer(user).data}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+import urllib.request
+import json
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_sepay_payment(request):
+    expected_text = request.GET.get('ref', '')
+    if not expected_text:
+        return Response({'success': False, 'message': 'Missing ref parameter'})
+    
+    try:
+        req = urllib.request.Request(
+            'https://my.sepay.vn/userapi/transactions/list',
+            headers={
+                'Authorization': 'Bearer FUGN53XYODJLTHN5BSGMQJE9PIIE7R7XQ8CZT1GAY0ZABASF9D3ARPPG1CCNKMWR',
+                'Content-Type': 'application/json'
+            }
+        )
+        with urllib.request.urlopen(req) as response:
+            data = json.loads(response.read().decode())
+        
+        if data and 'transactions' in data:
+            for tx in data['transactions']:
+                if 'transaction_content' in tx and expected_text.lower() in tx['transaction_content'].lower():
+                    return Response({'success': True, 'message': 'Payment found', 'transaction': tx})
+                    
+        return Response({'success': False, 'message': 'Payment not found yet'})
+    except Exception as e:
+        return Response({'success': False, 'error': str(e)})
