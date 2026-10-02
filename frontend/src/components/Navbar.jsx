@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import { clearTokens, getAccessToken } from "../utils/auth.js";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, ChevronUp, LogOut, Package } from "lucide-react";
+import { ChevronDown, ChevronUp, LogOut, Package, Truck } from "lucide-react";
 
 function Navbar() {
   const { cartItems } = useCart();
@@ -76,13 +76,18 @@ function Navbar() {
               <div className="absolute left-0 mt-2 w-60 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-2 animate-in fade-in slide-in-from-top-2 duration-150">
                 <ul className="flex flex-col">
                   <button
-                    onClick={() => {
-                      
-                    }}
+                    onClick={() => {}}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
+                  >
+                    <Truck className="w-4 h-4 text-gray-500" />
+                    <span className="font-medium">My Orders</span>
+                  </button>
+                  <button
+                    onClick={() => {}}
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
                   >
                     <Package className="w-4 h-4 text-gray-500 group-hover:text-blue-600" />
-                    <span className="font-medium">My products</span>
+                    <span className="font-medium">Add Product</span>
                   </button>
                   <button
                     onClick={() => {
