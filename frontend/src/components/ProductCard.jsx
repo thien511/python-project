@@ -1,9 +1,5 @@
 import { Link } from "react-router-dom";
-
-const formatPrice = (price) => {
-  if(!price) return "N/A";
-  return new Intl.NumberFormat("vi-VN").format(price);
-}
+import { formatPrice } from "../utils/helper";
 
 function ProductCard({ product }) {
   const BASEURL = import.meta.env.VITE_DJANGO_BASE_URL;
