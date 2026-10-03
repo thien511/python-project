@@ -15,7 +15,7 @@ def get_products(request):
 
     if category_id:
         products = products.filter(category_id=category_id)
-
+    print("products:", products)  # Debugging line
     serializer = ProductSerializer(
         products,
         many=True,

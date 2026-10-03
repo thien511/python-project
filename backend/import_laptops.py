@@ -7,7 +7,7 @@ django.setup()
 
 from store.models import Product, Category
 
-file_path = "import_data/Laptop_Prices_VND_Excel_Windows.xlsx"
+file_path = "./import_data/Laptop_Prices_VND_Excel_Windows.xlsx"
 
 products_df = pd.read_excel(
     file_path,
@@ -25,9 +25,9 @@ df = products_df.merge(
     how="left"
 )
 
-category = Category.objects.get(
+category = Category.objects.get_or_create(
     slug="laptop"
-)
+)[0]
 
 def clean(value):
     if pd.isna(value):
@@ -37,7 +37,7 @@ def clean(value):
 count = 0
 
 for _, row in df.iterrows():
-    if(count >= 10):
+    if(count >= 20):
         break
     count += 1
     Product.objects.create(
