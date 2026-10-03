@@ -20,12 +20,10 @@ function App() {
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<CartPage />} />
           <Route element={<PrivateRouter />}>
-            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/checkout" element={<Checkout />} />
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/check" element={<Checkout />} />
-
         </Routes>
       </Router>
     </>

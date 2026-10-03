@@ -4,9 +4,7 @@ import {
   Banknote,
   CheckCircle2,
   QrCode,
-  ShieldCheck,
   ArrowRight,
-  Sparkles,
   Info,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
