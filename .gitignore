@@ -25,10 +25,12 @@ dist-ssr
 .venv/*
 # Python
 venv/
-__pycache__/
-*.pyc
-*.pyo
+**/__pycache__/
+*.py[cod]
 
 # IDE
 .idea/
 .vscode/
+
+*.sqlite3
+db.sqlite3
