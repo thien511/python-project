@@ -8,12 +8,11 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ProductSerializer(serializers.ModelSerializer):
-    seller = serializers.ReadOnlyField(source='seller.username')
 
     class Meta:
         model = Product
         fields = '__all__'
-        read_only_fields = ['seller', 'created_at']
+        read_only_fields = ['created_at']
 
 class CartItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
@@ -61,7 +60,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         UserProfile.objects.create(
             user=user,
-            is_seller=False
+            role='user'
         )
 
         return user
