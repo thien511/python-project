@@ -43,8 +43,8 @@ function ProductList() {
                         <ProductCard key={product.id} product={product} />
                     ))
                 ) : (
-                    <p className="text-gray-600 font-medium">
-  {Number(product.price).toLocaleString('vi-VN')} VND
+                   <p className="text-center text-gray-500 col-span-full">
+  No products found
 </p>
                 )}
             </div>
