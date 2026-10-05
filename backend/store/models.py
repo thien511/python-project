@@ -14,13 +14,7 @@ class Product(models.Model):
         related_name='products',
         on_delete=models.CASCADE
     )
-    seller = models.ForeignKey(
-        User,
-        related_name='products',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True
-    )
+
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -74,7 +68,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=15, blank=True)
     address = models.TextField(blank=True)
-    is_seller = models.BooleanField(default=False)
+    role = models.CharField(max_length=20, default='user')
 
     def __str__(self):
         return self.user.username

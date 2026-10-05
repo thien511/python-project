@@ -50,7 +50,13 @@ def get_cart(request):
 @permission_classes([IsAuthenticated])
 def add_to_cart(request):
     product_id = request.data.get('product_id')
-    product = Product.objects.get(id=product_id)
+    try:
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return Response(
+            {'error': 'Product not found'},
+            status=404
+        )
     cart, created = Cart.objects.get_or_create(user=request.user)
     item, created = CartItem.objects.get_or_create(cart=cart, product=product)
     if not created:
@@ -135,25 +141,24 @@ def register_view(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_product(request):
-
     try:
         profile = request.user.userprofile
     except UserProfile.DoesNotExist:
         return Response(
             {'error': 'User profile not found'},
-            status=404
+            status=status.HTTP_404_NOT_FOUND
         )
 
-    if not profile.is_seller:
+    if profile.role != 'manager':
         return Response(
-            {'error': 'Only sellers can create products'},
-            status=403
+            {'error': 'Only managers can create products'},
+            status=status.HTTP_403_FORBIDDEN
         )
 
     serializer = ProductSerializer(data=request.data)
 
     if serializer.is_valid():
-        product = serializer.save(seller=request.user)
+        product = serializer.save()
 
         return Response(
             ProductSerializer(product).data,
@@ -164,6 +169,7 @@ def create_product(request):
         serializer.errors,
         status=status.HTTP_400_BAD_REQUEST
     )
+
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_product(request, pk):
@@ -172,13 +178,13 @@ def update_product(request, pk):
     except UserProfile.DoesNotExist:
         return Response(
             {'error': 'User profile not found'},
-            status=404
+            status=status.HTTP_404_NOT_FOUND
         )
 
-    if not profile.is_seller:
+    if profile.role != 'manager':
         return Response(
-            {'error': 'Only sellers can update products'},
-            status=403
+            {'error': 'Only managers can update products'},
+            status=status.HTTP_403_FORBIDDEN
         )
 
     try:
@@ -186,14 +192,7 @@ def update_product(request, pk):
     except Product.DoesNotExist:
         return Response(
             {'error': 'Product not found'},
-            status=404
-        )
-
-    # Chỉ seller sở hữu sản phẩm mới được sửa
-    if product.seller != request.user:
-        return Response(
-            {'error': 'You can only update your own products'},
-            status=403
+            status=status.HTTP_404_NOT_FOUND
         )
 
     serializer = ProductSerializer(
@@ -206,13 +205,15 @@ def update_product(request, pk):
 
         return Response(
             ProductSerializer(product).data,
-            status=200
+            status=status.HTTP_200_OK
         )
 
     return Response(
         serializer.errors,
-        status=400
+        status=status.HTTP_400_BAD_REQUEST
     )
+
+
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_product(request, pk):
@@ -221,13 +222,13 @@ def delete_product(request, pk):
     except UserProfile.DoesNotExist:
         return Response(
             {'error': 'User profile not found'},
-            status=404
+            status=status.HTTP_404_NOT_FOUND
         )
 
-    if not profile.is_seller:
+    if profile.role != 'manager':
         return Response(
-            {'error': 'Only sellers can delete products'},
-            status=403
+            {'error': 'Only managers can delete products'},
+            status=status.HTTP_403_FORBIDDEN
         )
 
     try:
@@ -235,19 +236,12 @@ def delete_product(request, pk):
     except Product.DoesNotExist:
         return Response(
             {'error': 'Product not found'},
-            status=404
-        )
-
-    # Chỉ seller sở hữu sản phẩm mới được xóa
-    if product.seller != request.user:
-        return Response(
-            {'error': 'You can only delete your own products'},
-            status=403
+            status=status.HTTP_404_NOT_FOUND
         )
 
     product.delete()
 
     return Response(
         {'message': 'Product deleted successfully'},
-        status=200
+        status=status.HTTP_200_OK
     )
