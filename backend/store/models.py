@@ -91,8 +91,10 @@ class Order(models.Model):
     phone = models.CharField(max_length=20, default='')
     payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS, default='COD')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    cancel_reason = models.TextField(blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+
 
     def __str__(self):
         return f"Order {self.id}"
