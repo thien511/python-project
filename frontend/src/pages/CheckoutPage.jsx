@@ -40,7 +40,7 @@ export default function CheckoutPage() {
         method: "POST",
         body: JSON.stringify(form),
       });
-
+      console.log("Response from server:", res); 
       const data = await res.json();
 
       if (res.ok) {
