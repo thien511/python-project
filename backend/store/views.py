@@ -15,7 +15,7 @@ def get_products(request):
 
     if category_id:
         products = products.filter(category_id=category_id)
-    print("products:", products)  # Debugging line
+    
     serializer = ProductSerializer(
         products,
         many=True,
@@ -101,7 +101,10 @@ def create_order(request):
         name = data.get('name')
         address = data.get('address')
         phone = data.get('phone')
-        payment_method = data.get('payment_method','COD')
+        payment_method = data.get('payment_method')
+
+        if payment_method == "online":
+            pass
 
         #validate Phone Number
         # if not phone.isdigit() or len(phone) < 10:
