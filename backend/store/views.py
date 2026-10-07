@@ -93,7 +93,7 @@ def remove_from_cart(request):
     CartItem.objects.filter(id=item_id).delete()
     return Response({'message': 'Item removed from cart'})
 
-@api_view([' '])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_order(request):
     try:
@@ -127,7 +127,8 @@ def create_order(request):
         # Clear the cart
         cart.items.all().delete()
 
-
+        print("serializer:", serializer)
+        print("serializer:", serializer.data)
         return Response({'message': 'Order created successfully', 'order_id': serializer.data})
     except Exception as e:
         return Response({'error': str(e)}, status=500)
@@ -139,11 +140,7 @@ def get_orders(request):
         user=request.user
     ).order_by('-created_at')
     result = []
-
     serializer = OrderSerializer(orders, many=True)
-
- 
- 
     return Response(serializer.data)
 
 @api_view(['PUT'])
