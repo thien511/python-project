@@ -17,18 +17,18 @@ export default function CheckoutPage() {
   const [selectedMethod, setSelectedMethod] = useState("online"); // 'online' or 'cash'
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const { total } = useCart();
+  const [price, setPrice] = useState(0);
   const [form, setForm] = useState({
     name: "",
     address: "",
     phone: "",
     payment_method: selectedMethod,
   });
-
+  let total_amount;
   const nav = useNavigate();
   const { clearCart } = useCart();
   const BASEURL = "http://localhost:8000";
-
+  
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -42,9 +42,9 @@ export default function CheckoutPage() {
         method: "POST",
         body: JSON.stringify(form),
       });
-      console.log("Response from server:", res); 
       const data = await res.json();
-
+      setPrice(data.order_id.total_amount);
+      
       if (res.ok) {
         clearCart();
       } else {
@@ -333,7 +333,7 @@ export default function CheckoutPage() {
                   Mã đơn: #DH-202688
                 </span>
                 <span className="text-2xl font-bold text-white tracking-tight">
-                  {formatPrice(total)} đ
+                  {formatPrice(price)} đ
                 </span>
               </div>
             </div>
@@ -387,7 +387,7 @@ export default function CheckoutPage() {
               <div className="flex justify-between text-slate-400">
                 <span>Số tiền:</span>
                 <span className="text-white font-bold">
-                  {total.toFixed(2)} đ
+                  {formatPrice(price)} đ
                 </span>
               </div>
             </div>

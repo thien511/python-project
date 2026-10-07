@@ -15,7 +15,7 @@ def get_products(request):
 
     if category_id:
         products = products.filter(category_id=category_id)
-    print("products:", products)  # Debugging line
+    
     serializer = ProductSerializer(
         products,
         many=True,
@@ -93,7 +93,7 @@ def remove_from_cart(request):
     CartItem.objects.filter(id=item_id).delete()
     return Response({'message': 'Item removed from cart'})
 
-@api_view([' '])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_order(request):
     try:
