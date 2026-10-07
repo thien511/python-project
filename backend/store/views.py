@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from .serializers import RegisterSerializer, UserSerializer
 from rest_framework import status
 from .models import Product, Category, Cart, CartItem, Order, OrderItem, UserProfile
-from .serializers import ProductSerializer, CategorySerializer, CartSerializer, CartItemSerializer
+from .serializers import ProductSerializer, CategorySerializer, CartSerializer, CartItemSerializer, OrderSerializer
 
 @api_view(['GET'])
 def get_products(request):
@@ -93,7 +93,7 @@ def remove_from_cart(request):
     CartItem.objects.filter(id=item_id).delete()
     return Response({'message': 'Item removed from cart'})
 
-@api_view(['POST'])
+@api_view([' '])
 @permission_classes([IsAuthenticated])
 def create_order(request):
     try:
@@ -117,8 +117,9 @@ def create_order(request):
         
         total = sum([item.product.price * item.quantity for item in cart.items.all()])
 
-        order = Order.objects.create(user = request.user, total_amount=total)
-
+        order = Order.objects.create(user = request.user, name = name, address = address, phone = phone,
+                                     payment_method = payment_method, total_amount=total)
+        serializer = OrderSerializer(order)
         for item in cart.items.all():
             OrderItem.objects.create(
                 order=order,
@@ -128,10 +129,71 @@ def create_order(request):
             )
         # Clear the cart
         cart.items.all().delete()
-        return Response({'message': 'Order created successfully', 'order_id': order.id})
+
+
+        return Response({'message': 'Order created successfully', 'order_id': serializer.data})
     except Exception as e:
         return Response({'error': str(e)}, status=500)
-  
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_orders(request):
+    orders = Order.objects.filter(
+        user=request.user
+    ).order_by('-created_at')
+    result = []
+
+    serializer = OrderSerializer(orders, many=True)
+
+ 
+ 
+    return Response(serializer.data)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_order(request, pk):
+    try:
+        order = Order.objects.get(
+            id=pk,
+            user=request.user
+        )
+    except Order.DoesNotExist:
+        return Response(
+            {'error': 'Order not found'},
+            status=404
+        )
+
+    if order.status not in ['PENDING', 'CONFIRMED']:
+        return Response(
+            {'error': 'Order cannot be edited at this stage'},
+            status=400
+        )
+
+    name = request.data.get('name')
+    address = request.data.get('address')
+    phone = request.data.get('phone')
+
+    if name is not None:
+        order.name = name
+
+    if address is not None:
+        order.address = address
+
+    if phone is not None:
+        if not phone.isdigit() or len(phone) < 10:
+            return Response(
+                {'error': 'Invalid phone number'},
+                status=400
+            )
+        order.phone = phone
+
+    order.save()
+
+    return Response({
+        'message': 'Order updated successfully'
+    })
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_view(request):
