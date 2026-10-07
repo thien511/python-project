@@ -101,11 +101,14 @@ def create_order(request):
         name = data.get('name')
         address = data.get('address')
         phone = data.get('phone')
-        payment_method = data.get('payment_method','COD')
+        payment_method = data.get('payment_method')
+
+        if payment_method == "online":
+            pass
 
         #validate Phone Number
-        if not phone.isdigit() or len(phone) < 10:
-            return Response({'error': 'Invalid phone number'}, status=400)
+        # if not phone.isdigit() or len(phone) < 10:
+        #     return Response({'error': 'Invalid phone number'}, status=400)
         
         # Get user's cart
         cart , created = Cart.objects.get_or_create(user=request.user)

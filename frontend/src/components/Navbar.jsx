@@ -18,12 +18,12 @@ function Navbar() {
   };
 
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const containerRef = useRef(null);
 
   // Đóng menu khi click ra ngoài
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
@@ -36,7 +36,6 @@ function Navbar() {
   return (
     <nav
       className="bg-white shadow-md px-6 py-6 flex justify-between items-center fixed w-full top-0 z-50 gap-6"
-      ref={dropdownRef}
     >
       <Link to="/" className="text-2xl font-bold text-gray-800">
         🛍️ huy cart
@@ -48,7 +47,7 @@ function Navbar() {
           <>
             <Link
               to="/login"
-              className="text-gray-800 hover:text-gray-600 font-medium"
+              className="text-gray-800 hover:text-gray-600 font-medium mr-4"
             >
               Login
             </Link>
@@ -60,7 +59,7 @@ function Navbar() {
             </Link>
           </>
         ) : (
-          <div className="flex items-center gap-4 m-x-2 relative inline-block">
+          <div className="flex items-center gap-4 m-x-2 relative inline-block" ref={containerRef}>
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="flex items-center gap-1.5 px-4 py-1.5 bg-white border border-gray-200 rounded-lg shadow-sm text-gray-800 font-medium hover:bg-gray-50 focus:outline-none transition-all duration-150"
@@ -86,8 +85,10 @@ function Navbar() {
                     onClick={() => {}}
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
                   >
-                    <Package className="w-4 h-4 text-gray-500 group-hover:text-blue-600" />
-                    <span className="font-medium">Add Product</span>
+                    <Link to="/addProduct" className="flex items-center gap-3">
+                      <Package className="w-4 h-4 text-gray-500 group-hover:text-blue-600" />
+                      <span className="font-medium">Add Product</span>
+                    </Link>
                   </button>
                   <button
                     onClick={() => {

@@ -14,7 +14,6 @@ file_path = "./import_data/laptops_20.json"
 
 # 2. Tạo hoặc lấy Category và Seller
 category, _ = Category.objects.get_or_create(slug="laptop", defaults={"name": "Laptop"})
-seller, _ = User.objects.get_or_create(username="admin", defaults={"email": "admin@example.com"})
 
 print("Đang đọc dữ liệu từ file JSON...")
 
@@ -30,7 +29,6 @@ for item in laptop_list:
         name=name,
         defaults={
             "category": category,
-            "seller": seller,
             **item
         }
     )

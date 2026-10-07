@@ -8,6 +8,7 @@ import PrivateRouter from "./components/PrivateRouter.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
+import AddProductPage from "./pages/AddProductPage.jsx";
 
 function App() {
   return (
@@ -17,9 +18,10 @@ function App() {
         <Routes>
           <Route path="/" element={<ProductList />} />
           <Route path="/product/:id" element={<ProductDetails />} />
-          <Route path="/cart" element={<CartPage />} />
           <Route element={<PrivateRouter />}>
             <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/addProduct" element={<AddProductPage />} />
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
