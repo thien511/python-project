@@ -303,7 +303,7 @@ product = Product.objects.create(
   }, [products, searchQuery, categoryFilter]);
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans antialiased pb-12">
+    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans antialiased pb-12 mt-20">
       {/* Toast notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white text-xs font-medium px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 border border-slate-700 animate-bounce">
@@ -311,29 +311,6 @@ product = Product.objects.create(
           <span>{toastMessage}</span>
         </div>
       )}
-
-      {/* Navigation Bar */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-200">
-              <Laptop size={22} />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-slate-900 leading-tight">Product Manager Pro</h1>
-              <p className="text-xs text-slate-500">Giao diện quản lý & Sinh mã cho Django Product Model</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={loadSampleData}
-              className="px-3.5 py-2 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all border border-blue-200 flex items-center gap-1.5"
-            >
-              <Sparkles size={14} /> Nạp dữ liệu mẫu
-            </button>
-          </div>
-        </div>
-      </header>
 
       {/* Main Content Workspace */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
@@ -1011,122 +988,6 @@ product = Product.objects.create(
           </section>
 
         </div>
-
-        {/* BOTTOM SECTION: REGISTERED PRODUCTS LIST */}
-        <section className="mt-12 bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                <Laptop className="text-blue-600" size={20} />
-                Danh Sách Sản Phẩm Đã Tạo ({filteredProducts.length})
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">Thẻ sản phẩm hiển thị chuẩn phông nền trắng viền xanh</p>
-            </div>
-
-            {/* Filter & Search Bar */}
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-2.5 text-slate-400" size={14} />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Tìm theo tên, CPU..."
-                  className="text-xs rounded-xl border border-slate-200 pl-8 pr-3 py-2 w-48 sm:w-64 focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-              </div>
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="text-xs rounded-xl border border-slate-200 px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-              >
-                <option value="">Tất cả danh mục</option>
-                <option value="Laptop Gaming">Laptop Gaming</option>
-                <option value="Laptop Văn Phòng">Laptop Văn Phòng</option>
-                <option value="MacBook">MacBook / Apple</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Grid Layout of Cards */}
-          {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {filteredProducts.map((p) => (
-                <div
-                  key={p.id}
-                  className="bg-white border-2 border-blue-600 rounded-2xl p-4 flex flex-col justify-between h-[360px] relative group hover:shadow-xl hover:shadow-blue-100 transition-all duration-300"
-                >
-                  {/* Card Image */}
-                  <div className="w-full h-44 flex items-center justify-center p-2 mb-2 bg-white rounded-xl relative">
-                    <img
-                      src={p.image || 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=800&q=80'}
-                      alt={p.name}
-                      className="max-h-full max-w-full object-contain"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = 'https://placehold.co/400x300/ffffff/2563eb?text=No+Image';
-                      }}
-                    />
-
-                    {p.user_rating && (
-                      <div className="absolute top-2 right-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
-                        <Star size={10} fill="white" /> {p.user_rating}
-                      </div>
-                    )}
-
-                    {/* Quick Hover Actions */}
-                    <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => handleEdit(p)}
-                        className="w-9 h-9 rounded-full bg-white text-blue-600 hover:bg-blue-600 hover:text-white shadow-md flex items-center justify-center transition-colors"
-                        title="Sửa sản phẩm"
-                      >
-                        <Edit2 size={14} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(p.id)}
-                        className="w-9 h-9 rounded-full bg-white text-red-600 hover:bg-red-600 hover:text-white shadow-md flex items-center justify-center transition-colors"
-                        title="Xóa sản phẩm"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Metadata */}
-                  <div className="mt-auto">
-                    <h4 className="text-sm font-semibold text-slate-900 leading-snug line-clamp-2 mb-1" title={p.name}>
-                      {p.name}
-                    </h4>
-                    <p className="text-[11px] text-slate-400 mb-2">{p.category || 'Laptop'}</p>
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                      <span className="text-base font-bold text-blue-600">
-                        {p.price
-                          ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)
-                          : 'Liên hệ'}
-                      </span>
-                      <span className="text-[10px] bg-slate-100 text-slate-600 font-medium px-2 py-0.5 rounded">
-                        {p.ram || ''} {p.ram && p.ssd_capacity ? '/' : ''} {p.ssd_capacity || ''}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="py-12 text-center">
-              <Laptop className="mx-auto text-slate-300 mb-2" size={40} />
-              <p className="text-sm font-medium text-slate-500">Không tìm thấy sản phẩm nào</p>
-              <button
-                onClick={loadSampleData}
-                className="mt-3 text-xs text-blue-600 hover:underline font-semibold"
-              >
-                Tải lại danh sách mặc định
-              </button>
-            </div>
-          )}
-        </section>
-
       </main>
     </div>
   );
