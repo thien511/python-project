@@ -17,6 +17,7 @@ export default function CheckoutPage() {
   const [selectedMethod, setSelectedMethod] = useState("online"); // 'online' or 'cash'
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const { total } = useCart();
   const [price, setPrice] = useState(0);
   const [form, setForm] = useState({
     name: "",
@@ -24,7 +25,7 @@ export default function CheckoutPage() {
     phone: "",
     payment_method: selectedMethod,
   });
-  let total_amount;
+  console.log(total, price);
   const nav = useNavigate();
   const { clearCart } = useCart();
   const BASEURL = "http://localhost:8000";
@@ -333,7 +334,7 @@ export default function CheckoutPage() {
                   Mã đơn: #DH-202688
                 </span>
                 <span className="text-2xl font-bold text-white tracking-tight">
-                  {formatPrice(price)} đ
+                  {formatPrice(total)} đ
                 </span>
               </div>
             </div>

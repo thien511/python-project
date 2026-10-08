@@ -45,6 +45,7 @@ function ProductDetails() {
   //   };
 
   useEffect(() => {
+    setLoading(true);
     fetch(`http://localhost:8000/api/products/${id}/`)
       .then((response) => {
         if (!response.ok) {
@@ -73,7 +74,6 @@ function ProductDetails() {
     return <div>No product found</div>;
   }
 
-  console.log("Product state:", product);
   const specs = [
     `${product.processor_brand} ${product.processor_name} ${product.processor_variant}`,
     `${product.ram} ${product.ram_type} RAM | ${product.ssd_capacity} SSD`,

@@ -19,7 +19,7 @@ function Navbar() {
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   const isLoggedIn = !!getAccessToken();
-  
+
   const handleLogout = () => {
     clearTokens();
     navigate("/login");
@@ -120,8 +120,10 @@ function Navbar() {
                     }}
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
                   >
-                    <Truck className="w-4 h-4 text-gray-500" />
-                    <span className="font-medium">My Orders</span>
+                    <Link to="/myOrder" className="flex items-center gap-3">
+                      <Truck className="w-4 h-4 text-gray-500" />
+                      <span className="font-medium">My Orders</span>
+                    </Link>
                   </button>
                   <button
                     onClick={() => {

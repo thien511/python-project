@@ -36,7 +36,6 @@ function ProductList() {
       return matchQuery;
     });
   }, [products, searchQuery]);
-  console.log("filter", filteredProducts)
 
   if (loading) {
     return <div>Loading...</div>;
