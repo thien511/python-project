@@ -1,6 +1,8 @@
 import os
 import json
 import django
+import sys
+sys.path.append("D:\\Dự án python-thiện\\test\\backend")
 
 # Khởi tạo Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
