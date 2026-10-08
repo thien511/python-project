@@ -17,13 +17,10 @@ export default function CheckoutPage() {
   const [selectedMethod, setSelectedMethod] = useState("online");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-<<<<<<< HEAD
   const { total, clearCart } = useCart();
-  const BASEURL = "http://localhost:8000";
-  
-=======
   const [price, setPrice] = useState(0);
->>>>>>> 5c1a6ff1b0196a9c3c6fa56870b5624b6d41d1c0
+  const BASEURL = "http://localhost:8000";
+  console.log("pricd", price);
   const [form, setForm] = useState({
     name: "",
     address: "",
@@ -31,41 +28,14 @@ export default function CheckoutPage() {
   });
   let total_amount;
   const nav = useNavigate();
-<<<<<<< HEAD
-
-=======
-  const { clearCart } = useCart();
-  const BASEURL = "http://localhost:8000";
-  
->>>>>>> 5c1a6ff1b0196a9c3c6fa56870b5624b6d41d1c0
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleConfirm = async (e) => {
     e.preventDefault();
-<<<<<<< HEAD
     if (!form.name || !form.phone || !form.address) {
       alert("Vui lòng điền đầy đủ thông tin giao hàng!");
       return;
-=======
-
-    try {
-      const res = await authFetch(`${BASEURL}/api/orders/create/`, {
-        method: "POST",
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      setPrice(data.order_id.total_amount);
-      
-      if (res.ok) {
-        clearCart();
-      } else {
-        alert(data.error || "Order failed");
-        nav("/");
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
->>>>>>> 5c1a6ff1b0196a9c3c6fa56870b5624b6d41d1c0
     }
 
     if (selectedMethod === "online") {
@@ -80,7 +50,8 @@ export default function CheckoutPage() {
           body: JSON.stringify(orderData),
         });
         const data = await res.json();
-
+        
+        setPrice(data.order_id.total_amount)
         if (res.ok) {
           clearCart();
           setIsSubmitted(true);
@@ -327,7 +298,7 @@ export default function CheckoutPage() {
                   Mã đơn: #DH-202688
                 </span>
                 <span className="text-2xl font-bold text-white tracking-tight">
-                  {formatPrice(price)} đ
+                  {formatPrice(total)} đ
                 </span>
               </div>
             </div>
@@ -379,11 +350,7 @@ export default function CheckoutPage() {
               <div className="flex justify-between text-slate-400">
                 <span>Số tiền:</span>
                 <span className="text-white font-bold">
-<<<<<<< HEAD
-                  {formatPrice(total)} đ
-=======
                   {formatPrice(price)} đ
->>>>>>> 5c1a6ff1b0196a9c3c6fa56870b5624b6d41d1c0
                 </span>
               </div>
             </div>

@@ -95,7 +95,7 @@ export default function QRPage() {
       
       if (data.success) {
         setQrUrl(data.qrDataURL);
-        console.log(";aldsjfaj;ds",data.qrUrl);
+        console.log(";aldsjfaj;ds",data.qrDataURL);
         setTimeLeft(300);
 
         clearAllIntervals(); // <--- CHÈN THÊM DÒNG NÀY ĐỂ FIX LỖI NHẢY GIÂY
