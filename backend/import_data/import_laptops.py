@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from store.models import Product, Category
 
 # 1. Đường dẫn file JSON
-file_path = "./import_data/laptops_20.json"
+file_path = "./laptops_20.json"
 
 # 2. Tạo hoặc lấy Category và Seller
 category, _ = Category.objects.get_or_create(slug="laptop", defaults={"name": "Laptop"})
