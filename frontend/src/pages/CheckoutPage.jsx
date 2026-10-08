@@ -1,302 +1,368 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
+import {
+  CreditCard,
+  Banknote,
+  CheckCircle2,
+  QrCode,
+  ArrowRight,
+  Info,
+  ArrowLeft,
+} from "lucide-react";
+import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import { authFetch } from "../utils/auth";
-import { useCart } from "../context/CartContext";
+import { formatPrice } from "../utils/helper";
 
-function CheckoutPage() {
+export default function CheckoutPage() {
+  const [selectedMethod, setSelectedMethod] = useState("online");
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { total, clearCart } = useCart();
+  const BASEURL = "http://localhost:8000";
+  
   const [form, setForm] = useState({
     name: "",
     address: "",
     phone: "",
-    payment_method: "COD",
   });
 
   const nav = useNavigate();
-  const { clearCart, total } = useCart();
-  const BASEURL = 'http://localhost:8000';
-
-  // Custom Confirm Modal State
-  const [showConfirm, setShowConfirm] = useState(false);
-
-  // QR & Payment State
-  const [showQR, setShowQR] = useState(false);
-  const [qrUrl, setQrUrl] = useState("");
-  const [paymentStatus, setPaymentStatus] = useState(""); // "", "waiting", "success", "timeout"
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
-  
-  const timerRef = useRef(null); // for timeout
-  const countdownRef = useRef(null); // for visual countdown
-  const sepayIntervalRef = useRef(null); // for sepay api
-
-  useEffect(() => {
-    return () => {
-      clearAllIntervals();
-    };
-  }, []);
-
-  const clearAllIntervals = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    if (countdownRef.current) clearInterval(countdownRef.current);
-    if (sepayIntervalRef.current) clearInterval(sepayIntervalRef.current);
-  };
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const processOrder = async () => {
-    try {
-      const res = await authFetch(`${BASEURL}/api/orders/create/`, {
-        method: "POST",
-        body: JSON.stringify(form),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        clearCart();
-        alert("Order placed successfully!");
-        nav("/");
-      } else {
-        alert(data.error || "Order failed");
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
-    }
-  };
-
-  const checkSePayPayment = async (expectedText) => {
-    try {
-      const res = await authFetch(`${BASEURL}/api/orders/check-payment/?ref=${expectedText}`);
-      const data = await res.json();
-      
-      if (data && data.success) {
-        clearAllIntervals();
-        setPaymentStatus("success");
-        setTimeout(() => {
-          setShowQR(false);
-          processOrder();
-        }, 2000);
-      }
-    } catch (err) {
-      console.error("Sepay check error", err);
-    }
-  };
-
-  const handleOnlinePayment = async () => {
-    const orderRef = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const addInfo = `Chuyen tien mua hang tai MohitCart ${orderRef}`;
-    const vndAmount = Math.round(total * 1000);
-    
-    try {
-      const response = await fetch("https://api.vietqr.io/v2/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          accountNo: "0384758477",
-          accountName: "NGO THANH LUC",
-          acqId: 970422,
-          amount: vndAmount,
-          addInfo: addInfo,
-          template: "compact2"
-        })
-      });
-      const data = await response.json();
-      
-      if (data.code === "00") {
-        setQrUrl(data.data.qrDataURL);
-        setShowQR(true);
-        setPaymentStatus("waiting");
-        setTimeLeft(300);
-
-        countdownRef.current = setInterval(() => {
-          setTimeLeft((prev) => {
-            if (prev <= 1) {
-              clearAllIntervals();
-              setPaymentStatus("timeout");
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-
-        sepayIntervalRef.current = setInterval(() => {
-          checkSePayPayment(orderRef);
-        }, 5000);
-
-      } else {
-        alert("Lỗi tạo mã QR: " + data.desc);
-      }
-    } catch (err) {
-      console.error("QR Generation Error:", err);
-      alert("Lỗi khi tạo mã QR");
-    }
-  };
-
-  const handleInitialSubmit = (e) => {
+  const handleConfirm = async (e) => {
     e.preventDefault();
-    setShowConfirm(true);
-  };
+    if (!form.name || !form.phone || !form.address) {
+      alert("Vui lòng điền đầy đủ thông tin giao hàng!");
+      return;
+    }
 
-  const confirmSubmit = () => {
-    setShowConfirm(false);
-    if (form.payment_method === "ONLINE") {
-      handleOnlinePayment();
+    if (selectedMethod === "online") {
+      // Navigate to QR page with form data
+      nav("/qr", { state: { form: { ...form, payment_method: "ONLINE" }, total } });
     } else {
-      processOrder();
+      setIsProcessing(true);
+      try {
+        const orderData = { ...form, payment_method: "COD" };
+        const res = await authFetch(`${BASEURL}/api/orders/create/`, {
+          method: "POST",
+          body: JSON.stringify(orderData),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          clearCart();
+          setIsSubmitted(true);
+        } else {
+          alert(data.error || "Order failed");
+        }
+      } catch (error) {
+        console.error("Checkout error:", error);
+        alert("Lỗi khi tạo đơn hàng");
+      }
+      setIsProcessing(false);
     }
   };
 
-  const closeQRModal = () => {
-    setShowQR(false);
-    clearAllIntervals();
-  };
-
-  const formatTime = (seconds) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  const onBackToHome = () => {
+    nav("/");
   };
 
   return (
-    <div className="pt-20 p-6 relative min-h-screen">
-      <div className="max-w-lg mx-auto bg-white p-6 shadow rounded relative z-10">
-        <h1 className="text-2xl font-bold mb-4">Checkout</h1>
-
-        <form onSubmit={handleInitialSubmit} className="space-y-3">
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Your Name"
-            required
-            className="w-full p-2 border rounded"
-          />
-
-          <input
-            name="address"
-            value={form.address}
-            onChange={handleChange}
-            placeholder="Address"
-            required
-            className="w-full p-2 border rounded"
-          />
-
-          <input
-            name="phone"
-            value={form.phone}
-            onChange={handleChange}
-            placeholder="Phone Number"
-            required
-            className="w-full p-2 border rounded"
-          />
-
-          <select
-            name="payment_method"
-            value={form.payment_method}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          >
-            <option value="COD">Cash on Delivery</option>
-            <option value="ONLINE">Online Payment</option>
-          </select>
-
-          <button className="w-full bg-green-600 text-white py-2 rounded font-semibold hover:bg-green-700 transition">
-            Place Order
-          </button>
-        </form>
+    <div className="min-h-screen text-slate-100 flex items-center justify-center p-4 sm:p-6 font-sans mt-10">
+      {/* Background Decorative Blur Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Custom Confirm Modal */}
-      {showConfirm && (
-        <div className="fixed inset-0 bg-gray-800/50 backdrop-blur-sm flex items-center justify-center z-40 transition-opacity">
-          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full border border-gray-100">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">Xác nhận thông tin</h2>
-            <div className="space-y-2 mb-6 text-gray-700">
-              <p><span className="font-semibold w-32 inline-block">Họ tên:</span> {form.name}</p>
-              <p><span className="font-semibold w-32 inline-block">Địa chỉ:</span> {form.address}</p>
-              <p><span className="font-semibold w-32 inline-block">Số điện thoại:</span> {form.phone}</p>
-              <p><span className="font-semibold w-32 inline-block">Thanh toán:</span> {form.payment_method === "ONLINE" ? "Chuyển khoản (VietQR)" : "Tiền mặt (COD)"}</p>
-              <div className="border-t pt-2 mt-2">
-                <p className="text-lg text-red-600 font-bold">Tổng tiền: ${total.toFixed(2)}</p>
-              </div>
+      <main className="w-full max-w-xl relative z-10">
+        {!isSubmitted ? (
+          <div className="bg-slate-800/80 backdrop-blur-xl border border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-2xl transition-all duration-300">
+            {/* Header */}
+            <div className="mb-8 text-center">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                Chọn phương thức thanh toán
+              </h1>
             </div>
-            <div className="flex gap-3 justify-end">
-              <button 
-                onClick={() => setShowConfirm(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
-              >
-                Hủy bỏ
-              </button>
-              <button 
-                onClick={confirmSubmit}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-              >
-                Xác nhận
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* QR Code Modal Overlay */}
-      {showQR && (
-        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity">
-          <div className="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full text-center relative border border-gray-100">
-            {paymentStatus !== "success" && (
-              <button 
-                onClick={closeQRModal}
-                className="absolute top-3 right-4 text-gray-400 hover:text-gray-700 font-bold text-2xl transition"
+            {/* Main Options: Online vs Cash */}
+            <div className="space-y-4 mb-6">
+              {/* Option 1: Online Payment */}
+              <div
+                onClick={() => setSelectedMethod("online")}
+                className={`relative group cursor-pointer p-5 rounded-2xl border-2 transition-all duration-300 flex items-start gap-4 ${
+                  selectedMethod === "online"
+                    ? "bg-indigo-950/40 border-indigo-500 shadow-lg shadow-indigo-500/10"
+                    : "bg-slate-800/40 border-slate-700/60 hover:border-slate-600 hover:bg-slate-800/80"
+                }`}
               >
-                &times;
-              </button>
-            )}
-            <h2 className="text-xl font-bold mb-4 text-gray-800">Thanh toán Online</h2>
-            
-            {paymentStatus === "success" ? (
-              <div className="py-6">
-                <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                </div>
-                <div className="text-green-600 font-bold text-lg">Thanh toán thành công!</div>
-                <p className="text-sm text-gray-500 mt-2">Hệ thống đang xử lý đơn hàng...</p>
-              </div>
-            ) : paymentStatus === "timeout" ? (
-              <div className="py-6">
-                <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </div>
-                <div className="text-red-600 font-bold mb-2">Mã QR đã hết hạn (5 phút)</div>
-                <p className="text-sm text-gray-500 mb-4">Giao dịch chưa được hoàn tất.</p>
-                <button 
-                  onClick={closeQRModal}
-                  className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition"
+                <div
+                  className={`p-3 rounded-xl transition-colors duration-300 ${
+                    selectedMethod === "online"
+                      ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/30"
+                      : "bg-slate-700/50 text-slate-400 group-hover:text-slate-200"
+                  }`}
                 >
-                  Đóng
-                </button>
-              </div>
-            ) : (
-              <>
-                <p className="text-sm text-gray-600 mb-3">Sử dụng App ngân hàng để quét mã</p>
-                <div className="bg-gray-50 p-2 rounded-lg inline-block mb-4 border border-gray-100 shadow-sm">
-                  <img src={qrUrl} alt="VietQR" className="mx-auto rounded" />
-                </div>
-                
-                <div className="bg-blue-50 text-blue-800 p-3 rounded-lg mb-4 text-sm font-medium flex flex-col items-center">
-                  <span>Mã QR sẽ hết hạn sau:</span>
-                  <span className="font-bold text-red-500 text-xl mt-1">{formatTime(timeLeft)}</span>
+                  <CreditCard className="w-6 h-6" />
                 </div>
 
-                <div className="flex items-center justify-center space-x-2 text-blue-600">
-                  <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-sm font-medium">Đang chờ thanh toán...</span>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-white text-base">
+                      Thanh toán Online
+                    </h3>
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                        selectedMethod === "online"
+                          ? "border-indigo-500 bg-indigo-500"
+                          : "border-slate-600"
+                      }`}
+                    >
+                      {selectedMethod === "online" && (
+                        <div className="w-2 h-2 rounded-full bg-white" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Sub-options for Online Payment */}
+                  {selectedMethod === "online" && (
+                    <>
+                      <div className="mt-4 pt-4 border-t border-indigo-500/20 grid grid-cols-3 gap-2">
+                        <button
+                          type="button"
+                          className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-medium transition-all bg-indigo-500/20 border-indigo-500 text-indigo-300`}
+                        >
+                          <QrCode className="w-4 h-4 mb-1" />
+                          Quét mã QR
+                        </button>
+                      </div>
+                      <div
+                        className="mt-4 pt-4 border-t border-emerald-500/20 space-y-3"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div>
+                          <label className="block text-xs font-medium text-slate-300 mb-1">
+                            Họ và tên <span className="text-rose-400">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Nguyễn Văn A"
+                            name="name"
+                            value={form.name}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700/80 focus:border-emerald-500 text-sm text-white placeholder-slate-500 outline-none transition-all"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-medium text-slate-300 mb-1">
+                            Số điện thoại <span className="text-rose-400">*</span>
+                          </label>
+                          <input
+                            type="tel"
+                            placeholder="0912345678"
+                            name="phone"
+                            value={form.phone}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700/80 focus:border-emerald-500 text-sm text-white placeholder-slate-500 outline-none transition-all"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-medium text-slate-300 mb-1">
+                            Địa chỉ giao hàng <span className="text-rose-400">*</span>
+                          </label>
+                          <input
+                            name="address"
+                            value={form.address}
+                            onChange={handleChange}
+                            placeholder="Số nhà, tên đường, phường/xã, quận/huyện..."
+                            className="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700/80 focus:border-emerald-500 text-sm text-white placeholder-slate-500 outline-none transition-all resize-none"
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
-              </>
-            )}
+              </div>
+
+              {/* Option 2: Cash Payment */}
+              <div
+                onClick={() => setSelectedMethod("cash")}
+                className={`relative group cursor-pointer p-5 rounded-2xl border-2 transition-all duration-300 flex items-start gap-4 ${
+                  selectedMethod === "cash"
+                    ? "bg-emerald-950/40 border-emerald-500 shadow-lg shadow-emerald-500/10"
+                    : "bg-slate-800/40 border-slate-700/60 hover:border-slate-600 hover:bg-slate-800/80"
+                }`}
+              >
+                <div
+                  className={`p-3 rounded-xl transition-colors duration-300 ${
+                    selectedMethod === "cash"
+                      ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/30"
+                      : "bg-slate-700/50 text-slate-400 group-hover:text-slate-200"
+                  }`}
+                >
+                  <Banknote className="w-6 h-6" />
+                </div>
+
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-white text-base">
+                      Tiền mặt (Cash / COD)
+                    </h3>
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                        selectedMethod === "cash"
+                          ? "border-emerald-500 bg-emerald-500"
+                          : "border-slate-600"
+                      }`}
+                    >
+                      {selectedMethod === "cash" && (
+                        <div className="w-2 h-2 rounded-full bg-white" />
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Thanh toán trực tiếp bằng tiền mặt khi nhận hàng
+                  </p>
+
+                  {selectedMethod === "cash" && (
+                    <div
+                      className="mt-4 pt-4 border-t border-emerald-500/20 space-y-3"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div>
+                        <label className="block text-xs font-medium text-slate-300 mb-1">
+                          Họ và tên <span className="text-rose-400">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Nguyễn Văn A"
+                          name="name"
+                          value={form.name}
+                          onChange={handleChange}
+                          className="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700/80 focus:border-emerald-500 text-sm text-white placeholder-slate-500 outline-none transition-all"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-300 mb-1">
+                          Số điện thoại <span className="text-rose-400">*</span>
+                        </label>
+                        <input
+                          type="tel"
+                          placeholder="0912345678"
+                          name="phone"
+                          value={form.phone}
+                          onChange={handleChange}
+                          className="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700/80 focus:border-emerald-500 text-sm text-white placeholder-slate-500 outline-none transition-all"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-300 mb-1">
+                          Địa chỉ giao hàng <span className="text-rose-400">*</span>
+                        </label>
+                        <input
+                          name="address"
+                          value={form.address}
+                          onChange={handleChange}
+                          placeholder="Số nhà, tên đường, phường/xã, quận/huyện..."
+                          className="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700/80 focus:border-emerald-500 text-sm text-white placeholder-slate-500 outline-none transition-all resize-none"
+                        />
+                      </div>
+
+                      <div className="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2.5 flex items-center gap-2 mt-2">
+                        <Info className="w-4 h-4 shrink-0" />
+                        Vui lòng chuẩn bị sẵn tiền mặt khi shipper giao tới.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Summary Box */}
+            <div className="bg-slate-900/60 rounded-2xl p-4 border border-slate-700/40 mb-6">
+              <div className="flex justify-between items-center text-sm text-slate-400 mb-1">
+                <span>Tổng tiền thanh toán:</span>
+                <span className="text-xs text-emerald-400 font-medium">
+                  Đã bao gồm VAT
+                </span>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <span className="text-xs text-slate-500">
+                  Mã đơn: #DH-202688
+                </span>
+                <span className="text-2xl font-bold text-white tracking-tight">
+                  {formatPrice(total)} đ
+                </span>
+              </div>
+            </div>
+
+            {/* Confirm Button */}
+            <button
+              onClick={handleConfirm}
+              disabled={isProcessing}
+              className={`w-full py-4 px-6 rounded-2xl font-semibold text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg ${
+                selectedMethod === "online"
+                  ? "bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 shadow-indigo-500/25"
+                  : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-emerald-500/25"
+              } disabled:opacity-50 cursor-pointer`}
+            >
+              {isProcessing ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  <span>Xác nhận thanh toán</span>
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              )}
+            </button>
           </div>
-        </div>
-      )}
+        ) : (
+          /* Success Screen */
+          <div className="bg-slate-800/80 backdrop-blur-xl border border-slate-700/60 rounded-3xl p-8 shadow-2xl text-center animate-in fade-in zoom-in duration-300">
+            <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/30">
+              <CheckCircle2 className="w-10 h-10" />
+            </div>
+
+            <h2 className="text-2xl font-bold text-white mb-2">
+              Đã chọn phương thức!
+            </h2>
+            <p className="text-slate-400 text-sm mb-6">
+              Bạn đã chọn hình thức thanh toán:{" "}
+              <strong className="text-white font-semibold">
+                Tiền mặt khi nhận hàng (COD)
+              </strong>
+            </p>
+
+            <div className="bg-slate-900/60 rounded-2xl p-4 border border-slate-700/40 text-left mb-6 space-y-2 text-sm">
+              <div className="flex justify-between text-slate-400">
+                <span>Trạng thái:</span>
+                <span className="text-amber-400 font-medium">
+                  Chờ xử lý đơn hàng
+                </span>
+              </div>
+              <div className="flex justify-between text-slate-400">
+                <span>Số tiền:</span>
+                <span className="text-white font-bold">
+                  {formatPrice(total)} đ
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={onBackToHome}
+              className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-white hover:text-white/80 hover:underline py-1"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
+            </button>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
-
-export default CheckoutPage;

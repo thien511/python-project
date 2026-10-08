@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Cart, CartItem, Product, Category
+from .models import Cart, CartItem, Product, Category, UserProfile, Order
 from django.contrib.auth.models import User
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -8,11 +8,18 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ProductSerializer(serializers.ModelSerializer):
-    Category = CategorySerializer(read_only=True)
 
     class Meta:
         model = Product
         fields = '__all__'
+        read_only_fields = ['created_at']
+
+class OrderSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Order
+        fields = '__all__'
+
 
 class CartItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
@@ -46,10 +53,21 @@ class RegisterSerializer(serializers.ModelSerializer):
         if data['password'] != data['password2']:
             raise serializers.ValidationError("Passwords do not match.")
         return data
-    
+
     def create(self, validated_data):
         username = validated_data['username']
         email = validated_data.get('email', '')
         password = validated_data['password']
-        user = User.objects.create_user(username=username, email=email, password=password)
+
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        UserProfile.objects.create(
+            user=user,
+            role='user'
+        )
+
         return user
