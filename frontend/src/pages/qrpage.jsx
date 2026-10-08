@@ -12,7 +12,7 @@ export default function QRPage() {
   // Get data passed from CheckoutPage
   const formData = location.state?.form;
   const total = location.state?.total;
-
+  
   const [qrUrl, setQrUrl] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("waiting"); // "waiting", "success", "timeout"
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
@@ -80,7 +80,7 @@ export default function QRPage() {
 
   const handleGenerateQR = async () => {
     const orderRef = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const vndAmount = Math.round(total * 1000); // adjust multiplier as per your logic
+    const vndAmount = Math.round(total) // adjust multiplier as per your logic
     
     try {
       // GỌI API BACKEND (PYTHON) ĐỂ TẠO QR THAY VÌ GỌI TRỰC TIẾP VIETQR
@@ -95,8 +95,10 @@ export default function QRPage() {
       
       if (data.success) {
         setQrUrl(data.qrDataURL);
+        console.log(";aldsjfaj;ds",data.qrUrl);
         setTimeLeft(300);
 
+        clearAllIntervals(); // <--- CHÈN THÊM DÒNG NÀY ĐỂ FIX LỖI NHẢY GIÂY
         countdownRef.current = setInterval(() => {
           setTimeLeft((prev) => {
             if (prev <= 1) {
