@@ -132,7 +132,8 @@ def create_order(request):
         # Clear the cart
         cart.items.all().delete()
 
-
+        print("serializer:", serializer)
+        print("serializer:", serializer.data)
         return Response({'message': 'Order created successfully', 'order_id': serializer.data})
     except Exception as e:
         return Response({'error': str(e)}, status=500)
@@ -144,11 +145,7 @@ def get_orders(request):
         user=request.user
     ).order_by('-created_at')
     result = []
-
     serializer = OrderSerializer(orders, many=True)
-
- 
- 
     return Response(serializer.data)
 
 @api_view(['PUT'])
