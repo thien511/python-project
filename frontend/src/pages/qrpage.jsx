@@ -80,7 +80,7 @@ export default function QRPage() {
 
   const handleGenerateQR = async () => {
     const orderRef = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const vndAmount = 2000 // adjust multiplier as per your logic
+    const vndAmount = Math.round(total) // adjust multiplier as per your logic
     
     try {
       // GỌI API BACKEND (PYTHON) ĐỂ TẠO QR THAY VÌ GỌI TRỰC TIẾP VIETQR
