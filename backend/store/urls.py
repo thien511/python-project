@@ -17,7 +17,9 @@ urlpatterns = [
     path('orders/<int:pk>', views.get_order),
     path('orders/update/<int:pk>', views.update_order),
     path('orders/create/', views.create_order),
-    path('manager/products', views.create_product),
+    path('orders/check-payment/', views.check_sepay_payment),
+    path('orders/generate-qr/', views.generate_qr),
+    path('manager/products/', views.create_product),
     path('manager/products/<int:pk>/', views.update_product),
     path('manager/products/<int:pk>/delete/', views.delete_product),
 ]

@@ -1,4 +1,12 @@
 import os
+import sys
+from pathlib import Path
+
+# Thêm thư mục 'backend' (thư mục cha của import_data) vào sys.path để nạp Django
+CURRENT_DIR = Path(__file__).resolve().parent
+BACKEND_DIR = CURRENT_DIR.parent
+sys.path.append(str(BACKEND_DIR))
+
 import django
 
 # Khởi tạo Django
@@ -7,7 +15,7 @@ django.setup()
 
 from store.models import Product
 
-# Danh sách 20 máy laptop - Hãy dán link ảnh vào các vị trí "..."
+# Danh sách 20 máy laptop
 IMAGE_MAP = {
     # 1. ASUS ROG Strix SCAR 17
     "ASUS ROG Strix SCAR 17 Core i9 12th Gen - (32 GB/1 TB SSD/Windows 11 Home/8 GB Graphics/NVIDIA GeForce RTX 3070 Ti) G733ZW-LL139WS Gaming Laptop  (17.3 inch, Off Black, 2.90 kg, With MS Office)": "https://th.bing.com/th/id/OIP.G4Qtckw9ngXcjMj8NBs1iQHaHa?w=600&h=600&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",

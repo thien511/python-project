@@ -53,7 +53,7 @@ function Navbar() {
   return (
     <nav className="bg-white shadow-md px-6 py-6 flex justify-between items-center fixed w-full top-0 z-50 gap-6">
       <Link to="/" className="text-2xl font-bold text-gray-800">
-        🛍️ huy cart
+        🛍️ LapZone
       </Link>
 
       <form className="flex items-center gap-3" onChange={handleSearch}>
@@ -104,7 +104,7 @@ function Navbar() {
               onClick={() => setIsOpen(!isOpen)}
               className="flex items-center gap-1.5 px-4 py-1.5 bg-white border border-gray-200 rounded-lg shadow-sm text-gray-800 font-medium focus:outline-none transition-all duration-150"
             >
-              <span>Me</span>
+              <span>Tài khoản</span>
               {isOpen ? (
                 <ChevronUp className="w-4 h-4 text-gray-600" />
               ) : (
@@ -122,7 +122,7 @@ function Navbar() {
                   >
                     <Link to="/myOrder" className="flex items-center gap-3">
                       <Truck className="w-4 h-4 text-gray-500" />
-                      <span className="font-medium">My Orders</span>
+                      <span className="font-medium">Đơn hàng của tôi</span>
                     </Link>
                   </button>
                   <button
@@ -133,7 +133,7 @@ function Navbar() {
                   >
                     <Link to="/addProduct" className="flex items-center gap-3">
                       <Package className="w-4 h-4 text-gray-500 group-hover:text-blue-600" />
-                      <span className="font-medium">Add Product</span>
+                      <span className="font-medium">Thêm sản phẩm</span>
                     </Link>
                   </button>
                   <button
@@ -144,7 +144,7 @@ function Navbar() {
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
                   >
                     <LogOut className="w-4 h-4 text-gray-500 group-hover:text-blue-600" />
-                    <span className="font-medium">Logout</span>
+                    <span className="font-medium">Đăng xuất</span>
                   </button>
                 </ul>
               </div>
@@ -155,7 +155,7 @@ function Navbar() {
           to="/cart"
           className="relative text-gray-800 hover:text-gray-600 font-medium border-gray-300 rounded-lg"
         >
-          🛒 Cart
+          🛒 Giỏ hàng
           {cartCount > 0 && (
             <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs font-bold rounded-full px-2">
               {cartCount}

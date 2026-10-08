@@ -5,7 +5,9 @@ from django.contrib.auth.models import User
 from .serializers import RegisterSerializer, UserSerializer
 from rest_framework import status
 from .models import Product, Category, Cart, CartItem, Order, OrderItem, UserProfile
-from .serializers import ProductSerializer, CategorySerializer, CartSerializer, CartItemSerializer, OrderSerializer, OrderItemSerializer
+from .serializers import ProductSerializer, CategorySerializer, CartSerializer, CartItemSerializer, OrderSerializer
+import urllib.request
+import json
 
 @api_view(['GET'])
 def get_products(request):
@@ -130,7 +132,8 @@ def create_order(request):
         # Clear the cart
         cart.items.all().delete()
 
-
+        print("serializer:", serializer)
+        print("serializer:", serializer.data)
         return Response({'message': 'Order created successfully', 'order_id': serializer.data})
     except Exception as e:
         return Response({'error': str(e)}, status=500)
@@ -142,11 +145,7 @@ def get_orders(request):
         user=request.user
     ).order_by('-created_at')
     result = []
-
     serializer = OrderSerializer(orders, many=True)
-
- 
- 
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -215,6 +214,34 @@ def register_view(request):
         return Response({"message": "User created successfully", "user": UserSerializer(user).data}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_sepay_payment(request):
+    expected_text = request.GET.get('ref', '')
+    if not expected_text:
+        return Response({'success': False, 'message': 'Missing ref parameter'})
+    
+    try:
+        req = urllib.request.Request(
+            'https://my.sepay.vn/userapi/transactions/list',
+            headers={
+                'Authorization': 'Bearer FUGN53XYODJLTHN5BSGMQJE9PIIE7R7XQ8CZT1GAY0ZABASF9D3ARPPG1CCNKMWR',
+                'Content-Type': 'application/json'
+            }
+        )
+        with urllib.request.urlopen(req) as response:
+            data = json.loads(response.read().decode())
+        
+        if data and 'transactions' in data:
+            for tx in data['transactions']:
+                if 'transaction_content' in tx and expected_text.lower() in tx['transaction_content'].lower():
+                    return Response({'success': True, 'message': 'Payment found', 'transaction': tx})
+                    
+        return Response({'success': False, 'message': 'Payment not found yet'})
+    except Exception as e:
+        return Response({'success': False, 'error': str(e)})
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_product(request):
@@ -323,3 +350,40 @@ def delete_product(request, pk):
         {'message': 'Product deleted successfully'},
         status=status.HTTP_200_OK
     )
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def generate_qr(request):
+    try:
+        amount = request.data.get('amount')
+        order_ref = request.data.get('order_ref')
+        
+        add_info = f"Chuyen tien mua hang tai MohitCart {order_ref}"
+        
+        payload = {
+            "accountNo": "0384758477",
+            "accountName": "NGO THANH LUC",
+            "acqId": 970422,
+            "amount": amount,
+            "addInfo": add_info,
+            "template": "compact2"
+        }
+        
+        req = urllib.request.Request(
+            'https://api.vietqr.io/v2/generate',
+            data=json.dumps(payload).encode('utf-8'),
+            headers={
+                'Content-Type': 'application/json'
+            },
+            method='POST'
+        )
+        with urllib.request.urlopen(req) as response:
+            data = json.loads(response.read().decode())
+            
+        if data.get('code') == '00':
+            return Response({'success': True, 'qrDataURL': data['data']['qrDataURL']})
+        else:
+            return Response({'success': False, 'message': data.get('desc')})
+            
+    except Exception as e:
+        return Response({'success': False, 'error': str(e)}, status=500)

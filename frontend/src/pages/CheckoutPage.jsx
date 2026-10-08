@@ -14,57 +14,62 @@ import { authFetch } from "../utils/auth";
 import { formatPrice } from "../utils/helper";
 
 export default function CheckoutPage() {
-  const [selectedMethod, setSelectedMethod] = useState("online"); // 'online' or 'cash'
+  const [selectedMethod, setSelectedMethod] = useState("online");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const { total } = useCart();
+  const { total, clearCart } = useCart();
   const [price, setPrice] = useState(0);
+  const BASEURL = "http://localhost:8000";
+  
   const [form, setForm] = useState({
     name: "",
     address: "",
     phone: "",
-    payment_method: selectedMethod,
   });
   console.log(total, price);
   const nav = useNavigate();
-  const { clearCart } = useCart();
-  const BASEURL = "http://localhost:8000";
-  
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleConfirm = async (e) => {
-    setIsProcessing(true);
-
     e.preventDefault();
-
-    try {
-      const res = await authFetch(`${BASEURL}/api/orders/create/`, {
-        method: "POST",
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      setPrice(data.order_id.total_amount);
-      
-      if (res.ok) {
-        clearCart();
-      } else {
-        alert(data.error || "Order failed");
-        nav("/");
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
+    if (!form.name || !form.phone || !form.address) {
+      alert("Vui lòng điền đầy đủ thông tin giao hàng!");
+      return;
     }
 
-    setTimeout(() => {
+    if (selectedMethod === "online") {
+      // Navigate to QR page with form data
+      nav("/qr", { state: { form: { ...form, payment_method: "online" }, total } });
+    } else {
+      setIsProcessing(true);
+      try {
+        const orderData = { ...form, payment_method: "cash" };
+        const res = await authFetch(`${BASEURL}/api/orders/create/`, {
+          method: "POST",
+          body: JSON.stringify(orderData),
+        });
+        const data = await res.json();
+        setPrice(data.order_id.total_amount);
+
+        if (res.ok) {
+          clearCart();
+          setIsSubmitted(true);
+        } else {
+          alert(data.error || "Order failed");
+        }
+      } catch (error) {
+        console.error("Checkout error:", error);
+        alert("Lỗi khi tạo đơn hàng");
+      }
       setIsProcessing(false);
-      setIsSubmitted(true);
-    }, 800);
+    }
   };
 
   const onBackToHome = () => {
     nav("/");
   };
+
   return (
     <div className="min-h-screen text-slate-100 flex items-center justify-center p-4 sm:p-6 font-sans mt-10">
       {/* Background Decorative Blur Elements */}
@@ -128,7 +133,7 @@ export default function CheckoutPage() {
                       <div className="mt-4 pt-4 border-t border-indigo-500/20 grid grid-cols-3 gap-2">
                         <button
                           type="button"
-                          className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-medium transition-all ${"bg-indigo-500/20 border-indigo-500 text-indigo-300"}`}
+                          className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-medium transition-all bg-indigo-500/20 border-indigo-500 text-indigo-300`}
                         >
                           <QrCode className="w-4 h-4 mb-1" />
                           Quét mã QR
@@ -148,20 +153,13 @@ export default function CheckoutPage() {
                             name="name"
                             value={form.name}
                             onChange={handleChange}
-                            // value={cashDetails.fullName}
-                            // onChange={(e) =>
-                            //   handleInputChange("fullName", e.target.value)
-                            // }
-                            className={`w-full px-3 py-2 rounded-xl bg-slate-900/80 border 
-                             border-slate-700/80 focus:border-emerald-500
-                           text-sm text-white placeholder-slate-500 outline-none transition-all`}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700/80 focus:border-emerald-500 text-sm text-white placeholder-slate-500 outline-none transition-all"
                           />
                         </div>
 
                         <div>
                           <label className="block text-xs font-medium text-slate-300 mb-1">
-                            Số điện thoại{" "}
-                            <span className="text-rose-400">*</span>
+                            Số điện thoại <span className="text-rose-400">*</span>
                           </label>
                           <input
                             type="tel"
@@ -169,34 +167,20 @@ export default function CheckoutPage() {
                             name="phone"
                             value={form.phone}
                             onChange={handleChange}
-                            // value={cashDetails.phone}
-                            // onChange={(e) =>
-                            //   handleInputChange("phone", e.target.value)
-                            // }
-                            className={`w-full px-3 py-2 rounded-xl bg-slate-900/80 border 
-                             border-slate-700/80 focus:border-emerald-500
-                           text-sm text-white placeholder-slate-500 outline-none transition-all`}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700/80 focus:border-emerald-500 text-sm text-white placeholder-slate-500 outline-none transition-all"
                           />
                         </div>
 
                         <div>
                           <label className="block text-xs font-medium text-slate-300 mb-1">
-                            Địa chỉ giao hàng{" "}
-                            <span className="text-rose-400">*</span>
+                            Địa chỉ giao hàng <span className="text-rose-400">*</span>
                           </label>
                           <input
                             name="address"
                             value={form.address}
                             onChange={handleChange}
-                            rows="2"
                             placeholder="Số nhà, tên đường, phường/xã, quận/huyện..."
-                            // value={cashDetails.address}
-                            // onChange={(e) =>
-                            //   handleInputChange("address", e.target.value)
-                            // }
-                            className={`w-full px-3 py-2 rounded-xl bg-slate-900/80 border 
-                            border-slate-700/80 focus:border-emerald-500
-                           text-sm text-white placeholder-slate-500 outline-none transition-all resize-none`}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700/80 focus:border-emerald-500 text-sm text-white placeholder-slate-500 outline-none transition-all resize-none"
                           />
                         </div>
                       </div>
@@ -260,13 +244,7 @@ export default function CheckoutPage() {
                           name="name"
                           value={form.name}
                           onChange={handleChange}
-                          // value={cashDetails.fullName}
-                          // onChange={(e) =>
-                          //   handleInputChange("fullName", e.target.value)
-                          // }
-                          className={`w-full px-3 py-2 rounded-xl bg-slate-900/80 border 
-                             border-slate-700/80 focus:border-emerald-500
-                           text-sm text-white placeholder-slate-500 outline-none transition-all`}
+                          className="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700/80 focus:border-emerald-500 text-sm text-white placeholder-slate-500 outline-none transition-all"
                         />
                       </div>
 
@@ -280,34 +258,20 @@ export default function CheckoutPage() {
                           name="phone"
                           value={form.phone}
                           onChange={handleChange}
-                          // value={cashDetails.phone}
-                          // onChange={(e) =>
-                          //   handleInputChange("phone", e.target.value)
-                          // }
-                          className={`w-full px-3 py-2 rounded-xl bg-slate-900/80 border 
-                             border-slate-700/80 focus:border-emerald-500
-                           text-sm text-white placeholder-slate-500 outline-none transition-all`}
+                          className="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700/80 focus:border-emerald-500 text-sm text-white placeholder-slate-500 outline-none transition-all"
                         />
                       </div>
 
                       <div>
                         <label className="block text-xs font-medium text-slate-300 mb-1">
-                          Địa chỉ giao hàng{" "}
-                          <span className="text-rose-400">*</span>
+                          Địa chỉ giao hàng <span className="text-rose-400">*</span>
                         </label>
                         <input
                           name="address"
                           value={form.address}
                           onChange={handleChange}
-                          rows="2"
                           placeholder="Số nhà, tên đường, phường/xã, quận/huyện..."
-                          // value={cashDetails.address}
-                          // onChange={(e) =>
-                          //   handleInputChange("address", e.target.value)
-                          // }
-                          className={`w-full px-3 py-2 rounded-xl bg-slate-900/80 border 
-                            border-slate-700/80 focus:border-emerald-500
-                           text-sm text-white placeholder-slate-500 outline-none transition-all resize-none`}
+                          className="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700/80 focus:border-emerald-500 text-sm text-white placeholder-slate-500 outline-none transition-all resize-none"
                         />
                       </div>
 
@@ -372,9 +336,7 @@ export default function CheckoutPage() {
             <p className="text-slate-400 text-sm mb-6">
               Bạn đã chọn hình thức thanh toán:{" "}
               <strong className="text-white font-semibold">
-                {selectedMethod === "online"
-                  ? `Thanh toán Online (qr)`
-                  : "Tiền mặt khi nhận hàng (COD)"}
+                Tiền mặt khi nhận hàng (COD)
               </strong>
             </p>
 
@@ -397,15 +359,8 @@ export default function CheckoutPage() {
               onClick={onBackToHome}
               className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-white hover:text-white/80 hover:underline py-1"
             >
-              <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
+              <ArrowLeft className="w-3.5 h-3.5" /> Về trang chủ
             </button>
-
-            {/* <button
-              onClick={handleReset}
-              className="w-full py-3.5 px-6 rounded-xl bg-slate-700 hover:bg-slate-600 font-medium text-white transition-all cursor-pointer"
-            >
-              Chọn lại phương thức khác
-            </button> */}
           </div>
         )}
       </main>

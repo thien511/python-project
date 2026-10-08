@@ -77,13 +77,13 @@ export default function OrderPage({
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Failed to fetch product details");
+          throw new Error("Failed to fetch order");
         }
         return response.json();
       })
       .then((data) => {
         setOrders(data);
-        console.log("Fetched product data:", data);
+        console.log("Fetched order data:", data);
 
         console.log("form", orders);
         setLoading(false);
