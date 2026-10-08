@@ -359,7 +359,7 @@ export default function CheckoutPage() {
               onClick={onBackToHome}
               className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-white hover:text-white/80 hover:underline py-1"
             >
-              <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
+              <ArrowLeft className="w-3.5 h-3.5" /> Về trang chủ
             </button>
           </div>
         )}

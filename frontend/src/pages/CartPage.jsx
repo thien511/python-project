@@ -9,9 +9,9 @@ function CartPage() {
 
     return (
         <div className="pt-20 min-h-screen bg-gray-100 p-8">
-            <h1 className="text-3xl font-bold mb-6 text-center">🛒 Your Cart</h1>
+            <h1 className="text-3xl font-bold mb-6 text-center">🛒 Giỏ hàng của bạn</h1>
             {cartItems.length === 0 ? (
-                <p className="text-center text-gray-600">Your cart is empty.</p>
+                <p className="text-center text-gray-600">Giỏ hàng rỗng.</p>
             ) : (
                 <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
                     {cartItems.map((item) => (
@@ -62,7 +62,7 @@ function CartPage() {
                                 <button className="text-red-500"
                                     onClick={() => removeFromCart(item.id)}
                                 >
-                                    Remove
+                                    Xóa 
                                 </button>
                             </div>
                         </div>
@@ -70,10 +70,10 @@ function CartPage() {
 
                     <div className="border-t pt-4 mt-4 flex justify-between items-center">
                         
-                        <h2 className="text-xl font-bold">Total:</h2>
+                        <h2 className="text-xl font-bold">Tổng cộng:</h2>
                         <p className="text-xl font-semibold">{formatPrice(total)}đ</p>
                         <Link to="/checkout" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300">
-                            Proceed to Checkout
+                           Thanh toán
                         </Link>
                     </div>
                 </div>
