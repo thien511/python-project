@@ -251,7 +251,7 @@ function ProductDetails() {
             </div>
 
             <div className="text-xs font-semibold text-green-700 mt-1">
-              Super Deals
+              Ưu đãi cực tốt
             </div>
 
             {/* Trợ giá đổi cũ lấy mới */}
@@ -278,7 +278,7 @@ function ProductDetails() {
                 </>
               ) : (
                 <>
-                  <ShoppingCart className="w-4 h-4" /> Add to Cart
+                  <ShoppingCart className="w-4 h-4" /> Thêm vào giỏ hàng
                 </>
               )}
             </button>
@@ -288,7 +288,7 @@ function ProductDetails() {
                 onClick={onBackToHome}
                 className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline py-1"
               >
-                <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
+                <ArrowLeft className="w-3.5 h-3.5" /> Về trang chủ
               </button>
             )}
           </div>
