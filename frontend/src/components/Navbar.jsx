@@ -15,11 +15,11 @@ function Navbar() {
   const { cartItems } = useCart();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-
+  const [user, setUser] = useState(null);
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
-
+  const token = localStorage.getItem("access_token");
   const isLoggedIn = !!getAccessToken();
-
+  console.log("user", user);
   const handleLogout = () => {
     clearTokens();
     navigate("/login");
@@ -33,6 +33,29 @@ function Navbar() {
     // Chuyển sang trang chủ kèm query string ?search=...
     navigate(`/?search=${encodeURIComponent(searchQuery)}`);
   };
+
+  useEffect(() => {
+    fetch(`http://localhost:8000/api/profile`, {
+      method: "get",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setUser(data);
+        console.log("Fetched product data:", data);
+      })
+      .catch((error) => {
+        console.log("error", error);
+        setUser(null);
+      });
+  }, []);
 
   // Đóng menu khi click ra ngoài
   useEffect(() => {
@@ -125,17 +148,17 @@ function Navbar() {
                       <span className="font-medium">Đơn hàng của tôi</span>
                     </Link>
                   </button>
-                  <button
-                    onClick={() => {
-                      setIsOpen(false);
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
-                  >
-                    <Link to="/addProduct" className="flex items-center gap-3">
-                      <Package className="w-4 h-4 text-gray-500 group-hover:text-blue-600" />
-                      <span className="font-medium">Thêm sản phẩm</span>
+                  {user?.role === "manager" && (
+                    <Link
+                      to="/manage"
+                      onClick={() => setIsOpen(false)}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
+                    >
+                      <Package className="w-4 h-4 text-gray-500 hover:text-blue-600" />
+                      <span className="font-medium">Sản phẩm</span>
                     </Link>
-                  </button>
+                  )}
+
                   <button
                     onClick={() => {
                       handleLogout();

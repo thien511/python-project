@@ -8,7 +8,7 @@ function ProductList() {
   const [error, setError] = useState(null);
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("search") || "";
-  
+
   useEffect(() => {
     fetch(`http://localhost:8000/api/products`)
       .then((response) => {
@@ -54,7 +54,7 @@ function ProductList() {
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
         {displayProducts.length > 0 ? (
-          displayProducts.map((p) => <ProductCard key={p.id} product={p} />)
+          displayProducts.map((p) => <ProductCard key={p.id} product={p}/>)
         ) : (
           <p className="text-center text-gray-500 col-span-full py-8">
             No products found

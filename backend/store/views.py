@@ -5,9 +5,23 @@ from django.contrib.auth.models import User
 from .serializers import RegisterSerializer, UserSerializer
 from rest_framework import status
 from .models import Product, Category, Cart, CartItem, Order, OrderItem, UserProfile
-from .serializers import ProductSerializer, CategorySerializer, CartSerializer, CartItemSerializer, OrderSerializer
+from .serializers import ProductSerializer, CategorySerializer, CartSerializer, CartItemSerializer, OrderSerializer, UserSerializer, UserProfileSerializer
 import urllib.request
 import json
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getProfile(request):
+    user = request.user
+    
+    try:
+        profile = UserProfile.objects.get(user=user)
+    except UserProfile.DoesNotExist:
+        return Response({"error": "Profile not found"}, status=404)
+        
+    ser = UserProfileSerializer(profile)
+    return Response(ser.data)
+
 
 @api_view(['GET'])
 def get_products(request):

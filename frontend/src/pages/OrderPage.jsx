@@ -103,23 +103,22 @@ export default function OrderPage({
       },
       body: JSON.stringify(form),
     })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Failed to update order");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Fetched product data:", data);
-    })
-    .catch((error) => {
-      console.log("error", error);
-    });
-  }
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to update order");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Fetched product data:", data);
+      })
+      .catch((error) => {
+        console.log("error", error);
+      });
+  };
 
   // Kiểm tra xem đơn hàng có được phép chỉnh sửa / hủy hay không
   // const canModify = order.status === 'PENDING' || order.status === 'CONFIRMED';
-
   // Xử lý lưu thay đổi thông tin
   const handleSaveInfo = async (e) => {
     e.preventDefault();
@@ -127,7 +126,7 @@ export default function OrderPage({
       if (order.id === formData.id) {
         return { ...order, ...formData };
       }
-      
+
       return order;
     });
     await updateOrder(formData.id, formData);
@@ -359,13 +358,13 @@ export default function OrderPage({
 
                 {/* Nút hủy đơn hàng */}
                 {/* {canModify && ( */}
-                <button
+                {/* <button
                   onClick={() => setIsCancelModalOpen(true)}
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 rounded-2xl text-sm font-semibold transition shadow-sm"
                 >
                   <XCircle className="w-4 h-4" />
                   Hủy đơn hàng này
-                </button>
+                </button> */}
                 {/* )} */}
               </div>
             </div>
@@ -425,6 +424,9 @@ export default function OrderPage({
         )} */}
         </div>
       ))}
+      {orders.length === 0 && (
+        <div className="mt-20">ddijt mej mafy </div>
+      )}
     </>
   );
 }
