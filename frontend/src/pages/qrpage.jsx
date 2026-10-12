@@ -20,6 +20,7 @@ export default function QRPage() {
   const timerRef = useRef(null);
   const countdownRef = useRef(null);
   const sepayIntervalRef = useRef(null);
+  console.log(formData, total);
 
   useEffect(() => {
     if (!formData || !total) {

@@ -17,13 +17,7 @@ export default function CheckoutPage() {
   const [selectedMethod, setSelectedMethod] = useState("online");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-<<<<<<< HEAD
-  const { total, clearCart } = useCart();
-  const BASEURL = "http://localhost:8000";
-  
-=======
   const [price, setPrice] = useState(0);
->>>>>>> 5c1a6ff1b0196a9c3c6fa56870b5624b6d41d1c0
   const [form, setForm] = useState({
     name: "",
     address: "",
@@ -31,23 +25,14 @@ export default function CheckoutPage() {
   });
   let total_amount;
   const nav = useNavigate();
-<<<<<<< HEAD
-
-=======
   const { clearCart } = useCart();
   const BASEURL = "http://localhost:8000";
   
->>>>>>> 5c1a6ff1b0196a9c3c6fa56870b5624b6d41d1c0
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleConfirm = async (e) => {
     e.preventDefault();
-<<<<<<< HEAD
-    if (!form.name || !form.phone || !form.address) {
-      alert("Vui lòng điền đầy đủ thông tin giao hàng!");
-      return;
-=======
 
     try {
       const res = await authFetch(`${BASEURL}/api/orders/create/`, {
@@ -65,12 +50,11 @@ export default function CheckoutPage() {
       }
     } catch (error) {
       console.error("Checkout error:", error);
->>>>>>> 5c1a6ff1b0196a9c3c6fa56870b5624b6d41d1c0
     }
 
     if (selectedMethod === "online") {
       // Navigate to QR page with form data
-      nav("/qr", { state: { form: { ...form, payment_method: "ONLINE" }, total } });
+      nav("/qr", { state: { form: { ...form, payment_method: "online" }, price } });
     } else {
       setIsProcessing(true);
       try {
@@ -379,11 +363,7 @@ export default function CheckoutPage() {
               <div className="flex justify-between text-slate-400">
                 <span>Số tiền:</span>
                 <span className="text-white font-bold">
-<<<<<<< HEAD
-                  {formatPrice(total)} đ
-=======
                   {formatPrice(price)} đ
->>>>>>> 5c1a6ff1b0196a9c3c6fa56870b5624b6d41d1c0
                 </span>
               </div>
             </div>
