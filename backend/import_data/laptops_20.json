@@ -33,7 +33,8 @@
     "power_supply": "280 W AC Adapter",
     "dimensions": "395 x 282 x 28.3 mm",
     "warranty_summary": "1 Year Onsite Warranty",
-    "sales_package": "Laptop, Power Adaptor, User Guide, Warranty Documents"
+    "sales_package": "Laptop, Power Adaptor, User Guide, Warranty Documents",
+    "category": 1
   },
   {
     "name": "ASUS ROG Strix SCAR 15 Core i9 12th Gen - (32 GB/1 TB SSD/Windows 11 Home/8 GB Graphics/NVIDIA GeForce RTX 3070 Ti) G533ZW-LN136WS Gaming Laptop  (15.6 inch, Off Black, 2.30 kg, With MS Office)",
@@ -69,7 +70,8 @@
     "power_supply": "280 W AC Adapter",
     "dimensions": "354 x 259 x 27.2 mm",
     "warranty_summary": "1 Year Onsite Warranty",
-    "sales_package": "Laptop, Power Adaptor, User Guide, Warranty Documents"
+    "sales_package": "Laptop, Power Adaptor, User Guide, Warranty Documents",
+    "category": 1
   },
   {
     "name": "HP Victus Ryzen 7 Octa Core 5800H - (16 GB/512 GB SSD/Windows 11 Home/4 GB Graphics/NVIDIA GeForce RTX 3050) 16-e0351AX Gaming Laptop  (16.1 inch, Mica Silver, 2.48 kg, With MS Office)",
@@ -105,7 +107,8 @@
     "power_supply": "",
     "dimensions": "370 x 262 x 23.5 mm",
     "warranty_summary": "1 Year Onsite Warranty",
-    "sales_package": "Laptop, battery, adapter, cables and user manuals"
+    "sales_package": "Laptop, battery, adapter, cables and user manuals",
+    "category": 1
   },
   {
     "name": "Lenovo IdeaPad Gaming 3i Ryzen 7 Octa Core R7-5800H 5th Gen - (16 GB/512 GB SSD/Windows 11 Home/4 GB Graphics/NVIDIA GeForce RTX 3050) 15ACH6 Gaming Laptop  (15.6 inch, Shadow Black, 2.25 kg, With MS Office)",
@@ -141,7 +144,8 @@
     "power_supply": "Slim Tip 3-pin Power Adapter",
     "dimensions": "251.9 x?359.6 x?24.2 mm",
     "warranty_summary": "1 Year Warranty",
-    "sales_package": "Laptop, Power Adaptor, User Guide, Warranty Documents"
+    "sales_package": "Laptop, Power Adaptor, User Guide, Warranty Documents",
+    "category": 1
   },
   {
     "name": "Lenovo Yoga Slim 7 Core i5 11th Gen - (16 GB/512 GB SSD/Windows 11 Home) 82A300MBIN Thin and Light Laptop  (14 inch, Slate Grey, With MS Office)",
@@ -177,7 +181,8 @@
     "power_supply": "",
     "dimensions": "",
     "warranty_summary": "3 Years Warranty",
-    "sales_package": "Laptop, Adaptor"
+    "sales_package": "Laptop, Adaptor",
+    "category": 2
   },
   {
     "name": "Lenovo Yoga Slim 7 Core i7 11th Gen - (16 GB/512 GB SSD/Windows 11 Home) 14ITL05 Thin and Light Laptop  (14 inch, Slate Grey, 1.36 kg, With MS Office)",
@@ -213,7 +218,8 @@
     "power_supply": "65W USB-C AC Adapter",
     "dimensions": "208.18?x?320.6?x?14.9?mm",
     "warranty_summary": "1 Year Warranty",
-    "sales_package": "Thin & Light Laptop, Power Adaptor, User Guide, Warranty Documents"
+    "sales_package": "Thin & Light Laptop, Power Adaptor, User Guide, Warranty Documents",
+    "category": 2
   },
   {
     "name": "Lenovo Lenovo V15 Celeron Dual Core - (4 GB/256 GB SSD/Windows 10) 82C30053IH Thin and Light Laptop  (15.6 inch, Iron Grey)",
@@ -249,7 +255,8 @@
     "power_supply": "",
     "dimensions": "",
     "warranty_summary": "12 Months",
-    "sales_package": "Laptop & Adaptor"
+    "sales_package": "Laptop & Adaptor",
+    "category": 2
   },
   {
     "name": "Lenovo Yoga 6 Ryzen 7 Octa Core R7-5700U 5th Gen - (16 GB/1 TB SSD/Windows 11 Home) 13ALC6 2 in 1 Laptop  (13.3 inch, Abyss Blue, 1.31 kg, With MS Office)",
@@ -285,7 +292,8 @@
     "power_supply": "45 W AC Adapter",
     "dimensions": "208.18?x?320.6?x?15.1?mm",
     "warranty_summary": "1 Year Warranty",
-    "sales_package": "2 in 1 Laptop, Power Adaptor, User Guide, Warranty Documents"
+    "sales_package": "2 in 1 Laptop, Power Adaptor, User Guide, Warranty Documents",
+    "category": 3
   },
   {
     "name": "ASUS TUF Gaming F15 Core i5 10th Gen - (8 GB/1 TB SSD/Windows 11 Home/4 GB Graphics/NVIDIA GeForce GTX 1650/144 Hz) FX506LH-HN310W Gaming Laptop  (15.6 inch, Black, 2.30 kg)",
@@ -321,7 +329,8 @@
     "power_supply": "150W AC Adapter, Output: 20V DC, 7.5A, 150W, Input: 100~240V AC, 50/60Hz universal",
     "dimensions": "35.9 x 25.6 x 2.47 ~ 2.49 cm",
     "warranty_summary": "1 Year On site Manufacturing warranty",
-    "sales_package": "Laptop , Adaptor, & Manual"
+    "sales_package": "Laptop , Adaptor, & Manual",
+    "category": 1
   },
   {
     "name": "DELL Inspiron Pentium Silver - (8 GB/256 GB SSD/Windows 11 Home) Inspiron 3521 Notebook  (15.6 Inch, Carbon Black, 1.61 Kg, With MS Office)",
@@ -357,7 +366,8 @@
     "power_supply": "",
     "dimensions": "358 x 210 x 23.5 mm",
     "warranty_summary": "1 Year Onsite Warranty",
-    "sales_package": "Laptop, battery, adapter, cables and user manuals"
+    "sales_package": "Laptop, battery, adapter, cables and user manuals",
+    "category": 3
   },
   {
     "name": "DELL Inspiron Athlon Dual Core 3050U - (8 GB/256 GB SSD/Windows 11 Home) Inspiron 3525 Notebook  (15.6 Inch, Carbon Black, 1.68 Kg, With MS Office)",
@@ -393,7 +403,8 @@
     "power_supply": "",
     "dimensions": "358 x 210 x 23.5 mm",
     "warranty_summary": "1 Year Onsite Warranty",
-    "sales_package": "Laptop, battery, adapter, cables and user manuals"
+    "sales_package": "Laptop, battery, adapter, cables and user manuals",
+    "category": 3
   },
   {
     "name": "DELL Core i5 11th Gen - (16 GB/512 GB SSD/Windows 11 Home) XPS 9305 Thin and Light Laptop  (13.4 inch, Platinum Silver, 1.16 kg, With MS Office)",
@@ -429,7 +440,8 @@
     "power_supply": "",
     "dimensions": "302 x 199 x 15.8 mm",
     "warranty_summary": "1 Year Premium Support Plus",
-    "sales_package": "Laptop, battery, adapter, cables and user manuals"
+    "sales_package": "Laptop, battery, adapter, cables and user manuals",
+    "category": 2
   },
   {
     "name": "Lenovo Yoga 7i Ryzen 7 Octa Core R7-5800U 5th Gen - (16 GB/512 GB SSD/Windows 10 Home) 14ITL5 2 in 1 Laptop  (14 inch, Slate Grey, 1.43 kg, With MS Office)",
@@ -465,7 +477,8 @@
     "power_supply": "65 W AC Adapter",
     "dimensions": "214.6x320.4x17.7mm",
     "warranty_summary": "1 Year Warranty",
-    "sales_package": "2 in 1 Laptop, Power Adaptor, User Guide, Warranty Documents"
+    "sales_package": "2 in 1 Laptop, Power Adaptor, User Guide, Warranty Documents",
+    "category": 3
   },
   {
     "name": "ASUS Ryzen 7 Dual Core 7th Gen - (16 GB/512 GB HDD/512 GB SSD/Windows 11 Home/4 GB Graphics/NVIDIA GeForce RTX3050- 4GB) FA506IC-HN075W Gaming Laptop  (15.6 inch, Black)",
@@ -501,7 +514,8 @@
     "power_supply": "",
     "dimensions": "",
     "warranty_summary": "1 Year Warranty",
-    "sales_package": "Laptop, Manual, Adaptor"
+    "sales_package": "Laptop, Manual, Adaptor",
+    "category": 1
   },
   {
     "name": "ASUS Ryzen 3 Quad Core 3rd Gen - (8 GB/256 GB SSD/Windows 11 Home) M515DA-BR322WS Laptop  (15.6 inch, Silver, With MS Office)",
@@ -537,7 +551,8 @@
     "power_supply": "",
     "dimensions": "",
     "warranty_summary": "1 Year Warranty",
-    "sales_package": "Laptop, Manual, Adaptor"
+    "sales_package": "Laptop, Manual, Adaptor",
+    "category": 3
   },
   {
     "name": "ASUS ROG Flow X13 (2021) Ryzen 9 Octa Core Ryzen 9 5900HS 5th Gen - (32 GB/1 TB SSD/Windows 10 Home/4 GB Graphics/NVIDIA GeForce GTX 1650/120 Hz) GV301QH-K6461TS 2 in 1 Gaming Laptop  (13.4 Inch, Black, 1.3 KG, With MS Office)",
@@ -573,7 +588,8 @@
     "power_supply": "100W AC Adapter",
     "dimensions": "29.9 x 22.2 x 1.58",
     "warranty_summary": "1 Year Onsite Warranty",
-    "sales_package": "Laptop, Power Adaptor, User Guide, GV 301 Sleeve Bag, Pen, Warranty Documents"
+    "sales_package": "Laptop, Power Adaptor, User Guide, GV 301 Sleeve Bag, Pen, Warranty Documents",
+    "category": 3
   },
   {
     "name": "MSI GP66 Leopard Core i7 11th Gen - (16 GB/1 TB SSD/Windows 10 Home/8 GB Graphics/NVIDIA GeForce RTX 3070/240 Hz) GP66 Leopard 11UG Gaming Laptop  (15.6 inches, Black, 2.9 kg)",
@@ -609,7 +625,8 @@
     "power_supply": "280 W AC Adapter",
     "dimensions": "397 x 284 x 25.9",
     "warranty_summary": "2 Year Warranty",
-    "sales_package": "Laptop, Battery, Power Adapter, User Guide, Stealth Trooper Backpack"
+    "sales_package": "Laptop, Battery, Power Adapter, User Guide, Stealth Trooper Backpack",
+    "category": 1
   },
   {
     "name": "ASUS Vivobook 15 OLED Core i3 11th Gen - (8 GB/256 GB SSD/Windows 11 Home) K513EA-L301WS Laptop  (15.6 inch, Hearty Gold, 1.80 kg kg, With MS Office)",
@@ -645,7 +662,8 @@
     "power_supply": "65W AC Adapter",
     "dimensions": "35.90 x 23.50 x 1.79 Cm",
     "warranty_summary": "1 Year Onsite Warranty",
-    "sales_package": "Laptop, Manual, Adaptor"
+    "sales_package": "Laptop, Manual, Adaptor",
+    "category": 3
   },
   {
     "name": "realme Book Prime Core i5 11th Gen - (16 GB/512 GB SSD/Windows 11 Home) CloudPro002 Thin and Light Laptop  (14 inch, Grey, 1.37 kg, With MS Office)",
@@ -681,7 +699,8 @@
     "power_supply": "65W Type-C Adaptor",
     "dimensions": "307.21 x 228.96 x 15.55 mm",
     "warranty_summary": "1 Year Onsite Warranty",
-    "sales_package": "Laptop, Power Adaptor, Battery, Warranty Documents, User Guide"
+    "sales_package": "Laptop, Power Adaptor, Battery, Warranty Documents, User Guide",
+    "category": 2
   },
   {
     "name": "realme Book Prime Core i5 11th Gen - (16 GB/512 GB SSD/Windows 11 Home) CloudPro002 Thin and Light Laptop  (14 inch, Green, 1.37 kg, With MS Office)",
@@ -717,6 +736,7 @@
     "power_supply": "65W Type-C Adaptor",
     "dimensions": "307.21 x 228.96 x 15.55 mm",
     "warranty_summary": "1 Year Onsite Warranty",
-    "sales_package": "Laptop, Power Adaptor, Battery, Warranty Documents, User Guide"
+    "sales_package": "Laptop, Power Adaptor, Battery, Warranty Documents, User Guide",
+    "category": 2
   }
 ]
