@@ -67,7 +67,7 @@ const INITIAL_PRODUCTS = {
 };
 
 const INITIAL_FORM_STATE = {
-  category: "Laptop Gaming",
+  category: "",
   name: "",
   description: "",
   price: "",
@@ -103,6 +103,12 @@ const INITIAL_FORM_STATE = {
   dimensions: "",
   warranty_summary: "",
   sales_package: "",
+};
+
+const categoryMap = {
+  "Gaming Laptop": 1,
+  "Thin and Light Laptop": 2,
+  "Others Notebook": 3,
 };
 
 export default function AddProductPage() {
@@ -146,13 +152,22 @@ export default function AddProductPage() {
 
   const updateProduct = async (id) => {
     try {
+      const payload = {
+        ...formData,
+        price: parseFloat(formData.price) || 0,
+        user_rating: formData.user_rating
+          ? parseFloat(formData.user_rating)
+          : null,
+        category: parseInt(formData.category, 10) || null
+      };
+
       const res = await fetch(`${BASE}/api/manager/products/${id}/`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -186,7 +201,7 @@ export default function AddProductPage() {
       user_rating: formData.user_rating
         ? parseFloat(formData.user_rating)
         : null,
-      category: 2, 
+      category: categoryMap[formData.category] || null,
     };
 
     try {
@@ -371,16 +386,12 @@ product = Product.objects.create(
                           required
                           className="w-full text-sm rounded-xl border border-slate-300 px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                         >
-                          <option value="Laptop Gaming">Laptop Gaming</option>
-                          <option value="Laptop Văn Phòng">
-                            Laptop Văn Phòng
+                          <option value="1">Gaming Laptop</option>
+                          <option value="2">
+                            Thin and Light Laptop
                           </option>
-                          <option value="MacBook">MacBook / Apple</option>
-                          <option value="Đồ Họa Workstation">
-                            Đồ Họa Workstation
-                          </option>
-                          <option value="Mỏng Nhẹ Cao Cấp">
-                            Mỏng Nhẹ Cao Cấp
+                          <option value="3">
+                            Others Notebook
                           </option>
                         </select>
                       </div>

@@ -11,7 +11,7 @@ function Manager() {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("search") || "";
   const token = localStorage.getItem("access_token");
-
+  
   useEffect(() => {
     fetch(`http://localhost:8000/api/profile`, {
       method: "get",

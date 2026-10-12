@@ -7,7 +7,6 @@ import AddProductPage from "../pages/AddProductPage";
 function ProductCard({ product, user = null }) {
   const BASEURL = import.meta.env.VITE_DJANGO_BASE_URL;
   const price = formatPrice(product.price);
-  console.log(price)
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
   const [showDeleteModal, setShowDeleteModal] = useState(false);

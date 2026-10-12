@@ -25,7 +25,7 @@ function ProductList() {
         setError(error.message);
         setLoading(false);
       });
-  }, [products]);
+  }, []);
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
