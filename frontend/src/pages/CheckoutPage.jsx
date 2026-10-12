@@ -17,11 +17,13 @@ export default function CheckoutPage() {
   const [selectedMethod, setSelectedMethod] = useState("online");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const {total} = useCart();
   const [price, setPrice] = useState(0);
   const [form, setForm] = useState({
     name: "",
     address: "",
     phone: "",
+    payment_method: "online"
   });
   let total_amount;
   const nav = useNavigate();
