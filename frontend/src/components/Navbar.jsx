@@ -7,14 +7,12 @@ import {
   ChevronUp,
   LogOut,
   Package,
-  Search,
   Truck,
 } from "lucide-react";
 
 function Navbar() {
   const { cartItems } = useCart();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState(null);
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const token = localStorage.getItem("access_token");
@@ -27,12 +25,6 @@ function Navbar() {
 
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    // Chuyển sang trang chủ kèm query string ?search=...
-    navigate(`/?search=${encodeURIComponent(searchQuery)}`);
-  };
 
   useEffect(() => {
     fetch(`http://localhost:8000/api/profile`, {
@@ -78,28 +70,6 @@ function Navbar() {
       <Link to="/" className="text-2xl font-bold text-gray-800">
         🛍️ LapZone
       </Link>
-
-      <form className="flex items-center gap-3" onChange={handleSearch}>
-        <div className="relative">
-          <Search
-            className="absolute left-3 top-2.5 text-slate-400"
-            size={14}
-          />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo tên, CPU..."
-            className="text-xs rounded-xl border border-slate-200 pl-8 pr-3 py-2 w-48 sm:w-64 focus:ring-2 focus:ring-blue-500 outline-none"
-          />
-        </div>
-        <button
-          className="text-xs rounded-xl border border-slate-200 px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer hover:bg-slate-50 transition"
-          type="submit"
-        >
-          Tìm
-        </button>
-      </form>
 
       <div className="flex items-center gap-6">
         {/* Login/SignUp or Logout */}

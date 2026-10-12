@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Laptop,
   Plus,
@@ -22,6 +22,7 @@ import {
   ChevronRight,
   Info,
 } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 const INITIAL_PRODUCTS = {
   id: "1",
@@ -114,11 +115,21 @@ export default function AddProductPage() {
   const [copied, setCopied] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const BASE = "http://localhost:8000";
+  const token = localStorage.getItem("access_token");
+  const location = useLocation();
+  const update = location.state;
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
-
+  console.log("update", update);
+  useEffect(() => {
+    if (!update) return;
+    setFormData({
+      ...update,
+    });
+    setEditingId(update.id);
+  }, [update]);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -133,38 +144,78 @@ export default function AddProductPage() {
     setActiveFormTab("basic");
   };
 
+  const updateProduct = async (id) => {
+    try {
+      const res = await fetch(`${BASE}/api/manager/products/${id}/`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      console.log("Cập nhật thành công:", data);
+    } catch (error) {
+      console.error("Lỗi khi cập nhật sản phẩm:", error);
+    }
+
+    resetForm();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (editingId) {
+      return updateProduct(editingId);
+    }
+
     if (!formData.name || !formData.category || !formData.price) {
       showToast("Vui lòng điền các thông tin bắt buộc (Tên, Danh mục, Giá)");
       return;
     }
 
-    const formattedPrice = parseFloat(formData.price) || 0;
-    const formattedRating = formData.user_rating
-      ? parseFloat(formData.user_rating)
-      : null;
-
-    const newProduct = {
+    const payload = {
       ...formData,
-      category: 2,
-      id: Date.now().toString(),
-      price: formattedPrice,
-      user_rating: formattedRating,
+      price: parseFloat(formData.price) || 0,
+      user_rating: formData.user_rating
+        ? parseFloat(formData.user_rating)
+        : null,
+      category: 2, 
     };
-    const token = localStorage.getItem("access_token");
-    const res = await fetch(`${BASE}/api/manager/products`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(product),
-    });
 
-    showToast("Thêm sản phẩm mới thành công!");
+    try {
+      const res = await fetch(`${BASE}/api/manager/products/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
-    resetForm();
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(
+          errorData?.detail || errorData?.message || "Thêm sản phẩm thất bại!",
+        );
+      }
+
+      const createdProduct = await res.json();
+
+      showToast("Thêm sản phẩm mới thành công!");
+      resetForm();
+
+      return createdProduct;
+    } catch (error) {
+      console.error("Lỗi khi thêm sản phẩm:", error);
+      showToast(error.message || "Đã có lỗi xảy ra, vui lòng thử lại!");
+    }
   };
 
   const generatedCode = useMemo(() => {

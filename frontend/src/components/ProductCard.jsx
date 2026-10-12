@@ -1,12 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { formatPrice } from "../utils/helper";
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
+import AddProductPage from "../pages/AddProductPage";
 
 function ProductCard({ product, user = null }) {
   const BASEURL = import.meta.env.VITE_DJANGO_BASE_URL;
   const price = formatPrice(product.price);
-
+  console.log(price)
+  const navigate = useNavigate();
+  const token = localStorage.getItem("access_token");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const handleOpenModal = (e) => {
     e.preventDefault();
@@ -15,13 +18,28 @@ function ProductCard({ product, user = null }) {
   };
 
   const handleConfirmDelete = () => {
-    if (onDelete) onDelete(product.id);
+    fetch(`http://localhost:8000/api/manager/products/${product.id}/delete/`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to delete products");
+        }
+        return response.json();
+      })
+      .catch((error) => {
+        console.log("error", error);
+      });
     setShowDeleteModal(false);
+    setIsdel(true);
   };
 
   const handleEdit = (e) => {
     e.preventDefault(); // Ngăn không cho Link chuyển trang khi bấm Sửa
-    if (onEdit) onEdit(product);
+    navigate("/addProduct", { state: product });
   };
   return (
     <>

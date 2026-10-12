@@ -268,11 +268,11 @@ def create_product(request):
             status=status.HTTP_404_NOT_FOUND
         )
 
-    # if profile.role != 'manager':
-    #     return Response(
-    #         {'error': 'Only managers can create products'},
-    #         status=status.HTTP_403_FORBIDDEN
-    #     )
+    if profile.role != 'manager':
+        return Response(
+            {'error': 'Only managers can create products'},
+            status=status.HTTP_403_FORBIDDEN
+        )
 
     serializer = ProductSerializer(data=request.data)
 
@@ -326,7 +326,7 @@ def update_product(request, pk):
             ProductSerializer(product).data,
             status=status.HTTP_200_OK
         )
-
+    print(serializer.errors)
     return Response(
         serializer.errors,
         status=status.HTTP_400_BAD_REQUEST
