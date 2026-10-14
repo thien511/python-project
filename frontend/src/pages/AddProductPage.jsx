@@ -201,7 +201,7 @@ export default function AddProductPage() {
       user_rating: formData.user_rating
         ? parseFloat(formData.user_rating)
         : null,
-      category: categoryMap[formData.category] || null,
+      category: parseInt(formData.category, 10) || null
     };
 
     try {
