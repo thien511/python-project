@@ -17,55 +17,41 @@ export default function CheckoutPage() {
   const [selectedMethod, setSelectedMethod] = useState("online");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const {total} = useCart();
+  const { total, clearCart } = useCart();
   const [price, setPrice] = useState(0);
+  const BASEURL = "http://localhost:8000";
+  
   const [form, setForm] = useState({
     name: "",
     address: "",
     phone: "",
     payment_method: "online"
   });
-  let total_amount;
+  console.log(total, price);
   const nav = useNavigate();
-  const { clearCart } = useCart();
-  const BASEURL = "http://localhost:8000";
-  
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleConfirm = async (e) => {
     e.preventDefault();
-
-    try {
-      const res = await authFetch(`${BASEURL}/api/orders/create/`, {
-        method: "POST",
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      setPrice(data.order_id.total_amount);
-      
-      if (res.ok) {
-        clearCart();
-      } else {
-        alert(data.error || "Order failed");
-        nav("/");
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
+    if (!form.name || !form.phone || !form.address) {
+      alert("Vui lòng điền đầy đủ thông tin giao hàng!");
+      return;
     }
 
     if (selectedMethod === "online") {
       // Navigate to QR page with form data
-      nav("/qr", { state: { form: { ...form, payment_method: "online" }, price } });
+      nav("/qr", { state: { form: { ...form, payment_method: "online" }, total } });
     } else {
       setIsProcessing(true);
       try {
-        const orderData = { ...form, payment_method: "COD" };
+        const orderData = { ...form, payment_method: "cash" };
         const res = await authFetch(`${BASEURL}/api/orders/create/`, {
           method: "POST",
           body: JSON.stringify(orderData),
         });
         const data = await res.json();
+        setPrice(data.order_id.total_amount);
 
         if (res.ok) {
           clearCart();
@@ -313,7 +299,7 @@ export default function CheckoutPage() {
                   Mã đơn: #DH-202688
                 </span>
                 <span className="text-2xl font-bold text-white tracking-tight">
-                  {formatPrice(price)} đ
+                  {formatPrice(total)} đ
                 </span>
               </div>
             </div>
@@ -374,7 +360,7 @@ export default function CheckoutPage() {
               onClick={onBackToHome}
               className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-white hover:text-white/80 hover:underline py-1"
             >
-              <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
+              <ArrowLeft className="w-3.5 h-3.5" /> Về trang chủ
             </button>
           </div>
         )}
