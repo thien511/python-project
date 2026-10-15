@@ -7,19 +7,17 @@ import {
   ChevronUp,
   LogOut,
   Package,
-  Search,
   Truck,
 } from "lucide-react";
 
 function Navbar() {
   const { cartItems } = useCart();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-
+  const [user, setUser] = useState(null);
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
-
+  const token = localStorage.getItem("access_token");
   const isLoggedIn = !!getAccessToken();
-  
+  console.log("user", user);
   const handleLogout = () => {
     clearTokens();
     navigate("/login");
@@ -28,11 +26,28 @@ function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    // Chuyển sang trang chủ kèm query string ?search=...
-    navigate(`/?search=${encodeURIComponent(searchQuery)}`);
-  };
+  useEffect(() => {
+    fetch(`http://localhost:8000/api/profile`, {
+      method: "get",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setUser(data);
+        console.log("Fetched product data:", data);
+      })
+      .catch((error) => {
+        console.log("error", error);
+        setUser(null);
+      });
+  }, []);
 
   // Đóng menu khi click ra ngoài
   useEffect(() => {
@@ -53,30 +68,8 @@ function Navbar() {
   return (
     <nav className="bg-white shadow-md px-6 py-6 flex justify-between items-center fixed w-full top-0 z-50 gap-6">
       <Link to="/" className="text-2xl font-bold text-gray-800">
-        🛍️ huy cart
+        🛍️ LapZone
       </Link>
-
-      <form className="flex items-center gap-3" onChange={handleSearch}>
-        <div className="relative">
-          <Search
-            className="absolute left-3 top-2.5 text-slate-400"
-            size={14}
-          />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo tên, CPU..."
-            className="text-xs rounded-xl border border-slate-200 pl-8 pr-3 py-2 w-48 sm:w-64 focus:ring-2 focus:ring-blue-500 outline-none"
-          />
-        </div>
-        <button
-          className="text-xs rounded-xl border border-slate-200 px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer hover:bg-slate-50 transition"
-          type="submit"
-        >
-          Tìm
-        </button>
-      </form>
 
       <div className="flex items-center gap-6">
         {/* Login/SignUp or Logout */}
@@ -104,7 +97,7 @@ function Navbar() {
               onClick={() => setIsOpen(!isOpen)}
               className="flex items-center gap-1.5 px-4 py-1.5 bg-white border border-gray-200 rounded-lg shadow-sm text-gray-800 font-medium focus:outline-none transition-all duration-150"
             >
-              <span>Me</span>
+              <span>Tài khoản</span>
               {isOpen ? (
                 <ChevronUp className="w-4 h-4 text-gray-600" />
               ) : (
@@ -120,20 +113,22 @@ function Navbar() {
                     }}
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
                   >
-                    <Truck className="w-4 h-4 text-gray-500" />
-                    <span className="font-medium">My Orders</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsOpen(false);
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
-                  >
-                    <Link to="/addProduct" className="flex items-center gap-3">
-                      <Package className="w-4 h-4 text-gray-500 group-hover:text-blue-600" />
-                      <span className="font-medium">Add Product</span>
+                    <Link to="/myOrder" className="flex items-center gap-3">
+                      <Truck className="w-4 h-4 text-gray-500" />
+                      <span className="font-medium">Đơn hàng của tôi</span>
                     </Link>
                   </button>
+                  {user?.role === "manager" && (
+                    <Link
+                      to="/manage"
+                      onClick={() => setIsOpen(false)}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
+                    >
+                      <Package className="w-4 h-4 text-gray-500 hover:text-blue-600" />
+                      <span className="font-medium">Sản phẩm</span>
+                    </Link>
+                  )}
+
                   <button
                     onClick={() => {
                       handleLogout();
@@ -142,7 +137,7 @@ function Navbar() {
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
                   >
                     <LogOut className="w-4 h-4 text-gray-500 group-hover:text-blue-600" />
-                    <span className="font-medium">Logout</span>
+                    <span className="font-medium">Đăng xuất</span>
                   </button>
                 </ul>
               </div>
@@ -153,7 +148,7 @@ function Navbar() {
           to="/cart"
           className="relative text-gray-800 hover:text-gray-600 font-medium border-gray-300 rounded-lg"
         >
-          🛒 Cart
+          🛒 Giỏ hàng
           {cartCount > 0 && (
             <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs font-bold rounded-full px-2">
               {cartCount}
