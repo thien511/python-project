@@ -1,14 +1,8 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import { clearTokens, getAccessToken } from "../utils/auth.js";
 import { useEffect, useRef, useState } from "react";
-import {
-  ChevronDown,
-  ChevronUp,
-  LogOut,
-  Package,
-  Truck,
-} from "lucide-react";
+import { ChevronDown, ChevronUp, LogOut, Package, Truck } from "lucide-react";
 
 function Navbar() {
   const { cartItems } = useCart();
@@ -17,6 +11,7 @@ function Navbar() {
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const token = localStorage.getItem("access_token");
   const isLoggedIn = !!getAccessToken();
+  const location = useLocation();
   console.log("user", user);
   const handleLogout = () => {
     clearTokens();
@@ -27,27 +22,31 @@ function Navbar() {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/profile`, {
-      method: "get",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch profile");
-        }
-        return response.json();
+    const justLoggedIn = sessionStorage.getItem("justLoggedIn");
+    if (justLoggedIn || !user) {
+      fetch(`http://localhost:8000/api/profile`, {
+        method: "get",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
-      .then((data) => {
-        setUser(data);
-        console.log("Fetched product data:", data);
-      })
-      .catch((error) => {
-        console.log("error", error);
-        setUser(null);
-      });
-  }, []);
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch profile");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setUser(data);
+          console.log("Fetched product data:", data);
+          sessionStorage.removeItem('justLoggedIn');
+        })
+        .catch((error) => {
+          console.log("error", error);
+          setUser(null);
+        })
+    }
+  }, [location.pathname]);
 
   // Đóng menu khi click ra ngoài
   useEffect(() => {
