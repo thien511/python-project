@@ -165,22 +165,6 @@ function ProductDetails() {
               className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
             />
           </div>
-
-          <div className="mt-4 flex items-center gap-2 self-start md:self-center">
-            <input
-              type="checkbox"
-              id={`compare-${product.id}`}
-              checked={isCompare}
-              onChange={(e) => setIsCompare(e.target.checked)}
-              className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer"
-            />
-            <label
-              htmlFor={`compare-${product.id}`}
-              className="text-sm font-medium text-slate-600 cursor-pointer select-none hover:text-slate-900"
-            >
-              Add to Compare
-            </label>
-          </div>
         </div>
 
         {/* CỘT 2: THÔNG TIN CHI TIẾT SẢN PHẨM */}

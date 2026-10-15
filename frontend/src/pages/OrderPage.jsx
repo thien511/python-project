@@ -425,7 +425,42 @@ export default function OrderPage({
         </div>
       ))}
       {orders.length === 0 && (
-        <div className="mt-20">ddijt mej mafy </div>
+        <div className="mt-20 flex flex-col items-center justify-center px-4 py-16 text-center">
+          {/* Icon đơn hàng */}
+          <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gray-100">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="h-12 w-12 text-gray-400"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 10.5V6a3.75 3.75 0 0 0-7.5 0v4.5m-4.5 0h16.5l1.5 10.5h-19.5l1.5-10.5Z"
+              />
+            </svg>
+          </div>
+
+          {/* Tiêu đề */}
+          <h1 className="mb-3 text-2xl font-bold text-gray-800">
+            Bạn chưa có đơn hàng nào
+          </h1>
+
+          {/* Mô tả */}
+          <p className="max-w-md text-sm leading-6 text-gray-500">
+            Các đơn hàng của bạn sẽ xuất hiện tại đây sau khi bạn đặt hàng thành công.
+          </p>
+
+          {/* Trạng thái */}
+          <div className="mt-8 rounded-xl border border-dashed border-gray-300 px-6 py-4">
+            <p className="text-sm text-gray-400">
+              Lịch sử đơn hàng của bạn đang trống
+            </p>
+          </div>
+        </div>
       )}
     </>
   );
