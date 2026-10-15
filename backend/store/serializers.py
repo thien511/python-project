@@ -79,7 +79,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         UserProfile.objects.create(
             user=user,
-            role='manager'
+            role='user'
         )
 
         return user
