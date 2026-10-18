@@ -12,6 +12,7 @@ import AddProductPage from "./pages/AddProductPage.jsx";
 import QRPage from "./pages/QRPage.jsx";
 import OrderPage from "./pages/OrderPage.jsx";
 import Manager from "./pages/Manager.jsx";
+import ManagerOrders from "./pages/ManagerOrders.jsx";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route element={<PrivateRouter />}>
             <Route path="/manage" element={<Manager />} />
+            <Route path="/manage/orders" element={<ManagerOrders />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/addProduct" element={<AddProductPage />} />

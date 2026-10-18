@@ -10,6 +10,7 @@ import {
   ShoppingCart,
   Star,
 } from "lucide-react";
+import { useUser } from "../context/UserContext";
 
 function ProductDetails() {
   const { id } = useParams();
@@ -21,6 +22,7 @@ function ProductDetails() {
   const [isWishlist, setIsWishlist] = useState(false);
   const [isCompare, setIsCompare] = useState(false);
   const [added, setAdded] = useState(false);
+  const { user } = useUser();
 
   // const product = {
   //     id: "rog-strix-g533zw",
@@ -181,9 +183,8 @@ function ProductDetails() {
                 title="Thêm vào yêu thích"
               >
                 <Heart
-                  className={`w-5 h-5 ${
-                    isWishlist ? "fill-red-500 text-red-500" : ""
-                  }`}
+                  className={`w-5 h-5 ${isWishlist ? "fill-red-500 text-red-500" : ""
+                    }`}
                 />
               </button>
             </div>
@@ -248,24 +249,25 @@ function ProductDetails() {
 
           {/* Nút hành động */}
           <div className="mt-6 flex flex-col gap-3">
-            <button
-              onClick={handleAddToCart}
-              className={`w-full py-2.5 px-4 rounded-md font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 shadow-sm ${
-                added
+            {user?.role !== "manager" && (
+              <button
+                onClick={handleAddToCart}
+                className={`w-full py-2.5 px-4 rounded-md font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 shadow-sm ${added
                   ? "bg-green-600 text-white"
                   : "bg-blue-600 hover:bg-blue-700 text-white"
-              }`}
-            >
-              {added ? (
-                <>
-                  <Check className="w-4 h-4" /> Đã thêm vào giỏ
-                </>
-              ) : (
-                <>
-                  <ShoppingCart className="w-4 h-4" /> Thêm vào giỏ hàng
-                </>
-              )}
-            </button>
+                  }`}
+              >
+                {added ? (
+                  <>
+                    <Check className="w-4 h-4" /> Đã thêm vào giỏ
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-4 h-4" /> Thêm vào giỏ hàng
+                  </>
+                )}
+              </button>
+            )}
 
             {onBackToHome && (
               <button

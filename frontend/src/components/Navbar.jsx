@@ -70,7 +70,7 @@ function Navbar() {
         🛍️ LapZone
       </Link>
 
-      <div className="flex items-center gap-6">
+      <div className={`flex items-center gap-6 ${user?.role === "manager" ? "mr-30" : ""}`}>
         {/* Login/SignUp or Logout */}
         {!isLoggedIn ? (
           <>
@@ -106,26 +106,41 @@ function Navbar() {
             {isOpen && (
               <div className="absolute left-0 mt-2 w-60 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-2 animate-in fade-in slide-in-from-top-2 duration-150">
                 <ul className="flex flex-col">
-                  <button
-                    onClick={() => {
-                      setIsOpen(false);
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
-                  >
-                    <Link to="/myOrder" className="flex items-center gap-3">
-                      <Truck className="w-4 h-4 text-gray-500" />
-                      <span className="font-medium">Đơn hàng của tôi</span>
-                    </Link>
-                  </button>
-                  {user?.role === "manager" && (
-                    <Link
-                      to="/manage"
-                      onClick={() => setIsOpen(false)}
+                  {user?.role === "user" && (
+                    <button
+                      onClick={() => {
+                        setIsOpen(false);
+                      }}
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
                     >
-                      <Package className="w-4 h-4 text-gray-500 hover:text-blue-600" />
-                      <span className="font-medium">Sản phẩm</span>
-                    </Link>
+                      <Link to="/myOrder" className="flex items-center gap-3">
+                        <Truck className="w-4 h-4 text-gray-500" />
+                        <span className="font-medium">Đơn hàng của tôi</span>
+                      </Link>
+                    </button>
+                  )}
+                  {user?.role === "manager" && (
+                    <>
+                      {/* Quản lý đơn hàng */}
+                      <Link
+                        to="/manage/orders"
+                        onClick={() => setIsOpen(false)}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
+                      >
+                        <Truck className="w-4 h-4 text-gray-500" />
+                        <span className="font-medium">Quản lý đơn hàng</span>
+                      </Link>
+
+                      {/* Quản lý sản phẩm */}
+                      <Link
+                        to="/manage"
+                        onClick={() => setIsOpen(false)}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
+                      >
+                        <Package className="w-4 h-4 text-gray-500" />
+                        <span className="font-medium">Quản lý sản phẩm</span>
+                      </Link>
+                    </>
                   )}
 
                   <button
@@ -143,17 +158,20 @@ function Navbar() {
             )}
           </div>
         )}
-        <Link
-          to="/cart"
-          className="relative text-gray-800 hover:text-gray-600 font-medium border-gray-300 rounded-lg"
-        >
-          🛒 Giỏ hàng
-          {cartCount > 0 && (
-            <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs font-bold rounded-full px-2">
-              {cartCount}
-            </span>
-          )}
-        </Link>
+        {user?.role === "user" && (
+          <Link
+            to="/cart"
+            className="relative text-gray-800 hover:text-gray-600 font-medium border-gray-300 rounded-lg"
+          >
+            🛒 Giỏ hàng
+
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs font-bold rounded-full px-2">
+                {cartCount}
+              </span>
+            )}
+          </Link>
+        )}
       </div>
     </nav>
   );

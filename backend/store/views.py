@@ -13,7 +13,7 @@ import json
 @permission_classes([IsAuthenticated])
 def getProfile(request):
     user = request.user
-    
+    print(user)
     try:
         profile = UserProfile.objects.get(user=user)
     except UserProfile.DoesNotExist:
@@ -364,6 +364,76 @@ def delete_product(request, pk):
         {'message': 'Product deleted successfully'},
         status=status.HTTP_200_OK
     )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def manager_get_orders(request):
+    # Kiểm tra quyền Manager
+    if not UserProfile.objects.filter(
+        user=request.user,
+        role='manager'
+    ).exists():
+        return Response(
+            {'error': 'Only managers can view orders'},
+            status=403
+        )
+
+    # Lấy tất cả đơn hàng, mới nhất trước
+    orders = Order.objects.all().order_by('-created_at')
+
+    serializer = OrderSerializer(orders, many=True)
+
+    return Response(serializer.data)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def manager_update_order_status(request, pk):
+    # Kiểm tra quyền Manager
+    if not UserProfile.objects.filter(
+        user=request.user,
+        role='manager'
+    ).exists():
+        return Response(
+            {'error': 'Only managers can update orders'},
+            status=403
+        )
+
+    try:
+        order = Order.objects.get(id=pk)
+    except Order.DoesNotExist:
+        return Response(
+            {'error': 'Order not found'},
+            status=404
+        )
+
+    new_status = request.data.get('status')
+
+    # Quy định những bước chuyển trạng thái hợp lệ
+    allowed_transitions = {
+        'PENDING': ['CONFIRMED', 'CANCELLED'],
+        'CONFIRMED': ['SHIPPED', 'CANCELLED'],
+        'SHIPPED': ['DELIVERED'],
+        'DELIVERED': [],
+        'CANCELLED': [],
+    }
+
+    if new_status not in allowed_transitions.get(order.status, []):
+        return Response(
+            {
+                'error': 'Invalid status transition',
+                'current_status': order.status
+            },
+            status=400
+        )
+
+    # Lưu trạng thái mới vào database
+    order.status = new_status
+    order.save(update_fields=['status'])
+
+    return Response({
+        'message': 'Order status updated successfully',
+        'order': OrderSerializer(order).data
+    })
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
