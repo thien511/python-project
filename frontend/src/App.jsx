@@ -13,6 +13,7 @@ import QRPage from "./pages/QRPage.jsx";
 import OrderPage from "./pages/OrderPage.jsx";
 import Manager from "./pages/Manager.jsx";
 import ManagerOrders from "./pages/ManagerOrders.jsx";
+import Footer from "./components/Footer.jsx";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>
+        <Footer />
       </Router>
     </>
   );

@@ -1,1 +1,23 @@
 @import "tailwindcss";
+@keyframes lapzone-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.lapzone-marquee {
+  animation: lapzone-scroll 28s linear infinite;
+}
+
+.lapzone-marquee:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lapzone-marquee {
+    animation: none;
+  }
+}
