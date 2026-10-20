@@ -22,6 +22,7 @@ function ProductDetails() {
   const [isWishlist, setIsWishlist] = useState(false);
   const [isCompare, setIsCompare] = useState(false);
   const [added, setAdded] = useState(false);
+  const [adding, setAdding] = useState(false);
   const { user } = useUser();
 
   // const product = {
@@ -87,14 +88,33 @@ function ProductDetails() {
     `Warranty: ${product.warranty_summary}`,
   ].filter(Boolean);
 
+
   const handleAddToCart = async () => {
     if (!localStorage.getItem("access_token")) {
       window.location.href = "/login";
       return;
     }
-    await addToCart(product.id);
-    setAdded(true);
+
+    if (adding) return;
+
+    setAdding(true);
+
+    try {
+      await addToCart(product.id);
+
+      setAdded(true);
+
+      setTimeout(() => {
+        setAdded(false);
+      }, 1000);
+    } catch (error) {
+      console.error("Lỗi thêm vào giỏ hàng:", error);
+      setAdded(false);
+    } finally {
+      setAdding(false);
+    }
   };
+
 
   /*-------------------------------------------------------------------------------------------*/
 
