@@ -8,7 +8,7 @@ function ProductList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-
+  console.log("test", products)
   useEffect(() => {
     fetch(`http://localhost:8000/api/products`)
       .then((response) => {

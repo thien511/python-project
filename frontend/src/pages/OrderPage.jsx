@@ -53,7 +53,7 @@ export default function OrderPage({
   const [orders, setOrders] = useState([]);
   console.log("order", orders);
   // State quản lý chế độ Chỉnh sửa thông tin
-  const [isEditingInfo, setIsEditingInfo] = useState(false);
+  const [editingOrderId, setEditingOrderId] = useState(null);
   const [formData, setFormData] = useState({
     id: null,
     name: "",
@@ -131,7 +131,7 @@ export default function OrderPage({
     });
     await updateOrder(formData.id, formData);
     setOrders(updatedOrders);
-    setIsEditingInfo(false);
+    setIsEditingInfo(null);
     // if (onUpdateOrder) onUpdateOrder(updated);
   };
 
@@ -215,7 +215,16 @@ export default function OrderPage({
                   </h2>
                   {/* {canModify && !isEditingInfo && ( */}
                   <button
-                    onClick={() => setIsEditingInfo(true)}
+                    onClick={() => {
+                      setEditingOrderId(order.id);
+
+                      setFormData({
+                        id: order.id,
+                        name: order.name,
+                        phone: order.phone,
+                        address: order.address,
+                      });
+                    }}
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
@@ -223,7 +232,7 @@ export default function OrderPage({
                   </button>
                 </div>
 
-                {isEditingInfo ? (
+                {editingOrderId === order.id ? (
                   /* Form cập nhật thông tin */
                   <form onSubmit={handleSaveInfo} className="space-y-4">
                     <div>
@@ -292,7 +301,7 @@ export default function OrderPage({
                             phone: order.phone,
                             address: order.address,
                           });
-                          setIsEditingInfo(false);
+                          setEditingOrderId(null);
                         }}
                         className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition"
                       >

@@ -73,7 +73,7 @@ function ProductCard({ product, user = null }) {
                   : `${BASEURL || "http://localhost:8000"}${product.image}`
               }
               alt={product.name}
-              className="max-h-full max-w-full object-contain"
+              className="max-h-full max-w-full object-contain transition-transform duration-500 ease-in-out group-hover:scale-110"
               onError={(e) => {
                 e.target.src = "https://placehold.co/600x400?text=No+Image";
               }}
