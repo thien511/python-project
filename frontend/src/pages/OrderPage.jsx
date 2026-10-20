@@ -1,476 +1,258 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Package,
-  MapPin,
-  Phone,
-  User,
-  CreditCard,
-  Clock,
-  Edit2,
-  XCircle,
-  CheckCircle2,
-  AlertCircle,
-  X,
-  Save,
+  Package, MapPin, Phone, User, CreditCard, Clock, Edit2,
+  CheckCircle2, AlertCircle, Save, ChevronDown, ChevronUp,
+  Truck, PackageCheck, Search,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { authFetch } from "../utils/auth";
 
-// Configuration hỗ trợ hiển thị Badge trạng thái
 const STATUS_CONFIG = {
-  PENDING: {
-    label: "Chờ xử lý",
-    color: "bg-amber-50 text-amber-700 border-amber-200",
-  },
-  CONFIRMED: {
-    label: "Đã xác nhận",
-    color: "bg-blue-50 text-blue-700 border-blue-200",
-  },
-  SHIPPED: {
-    label: "Đang giao hàng",
-    color: "bg-indigo-50 text-indigo-700 border-indigo-200",
-  },
-  DELIVERED: {
-    label: "Đã giao hàng",
-    color: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  },
-  CANCELLED: {
-    label: "Đã hủy",
-    color: "bg-rose-50 text-rose-700 border-rose-200",
-  },
+  PENDING: { label: "Chờ xử lý", color: "bg-amber-50 text-amber-700 border-amber-200" },
+  CONFIRMED: { label: "Đã xác nhận", color: "bg-blue-50 text-blue-700 border-blue-200" },
+  SHIPPED: { label: "Đang giao hàng", color: "bg-indigo-50 text-indigo-700 border-indigo-200" },
+  DELIVERED: { label: "Đã giao hàng", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  CANCELLED: { label: "Đã hủy", color: "bg-rose-50 text-rose-700 border-rose-200" },
 };
-
 const PAYMENT_LABELS = {
   COD: "Thanh toán khi nhận hàng (COD)",
   ONLINE: "Thanh toán trực tuyến",
+  cash: "Thanh toán khi nhận hàng (COD)",
+  online: "Thanh toán trực tuyến",
 };
+const FILTERS = [
+  { value: "ALL", label: "Tất cả" },
+  { value: "PENDING", label: "Chờ xử lý" },
+  { value: "CONFIRMED", label: "Đã xác nhận" },
+  { value: "SHIPPED", label: "Đang giao" },
+  { value: "DELIVERED", label: "Đã giao" },
+  { value: "CANCELLED", label: "Đã hủy" },
+];
+const STEPS = [
+  { label: "Đã đặt", icon: CheckCircle2 },
+  { label: "Xác nhận", icon: PackageCheck },
+  { label: "Vận chuyển", icon: Truck },
+  { label: "Hoàn tất", icon: Package },
+];
+const STEP_LEVEL = { PENDING: 0, CONFIRMED: 1, SHIPPED: 2, DELIVERED: 3 };
+const currency = (value) => `${Number(value || 0).toLocaleString("vi-VN")}đ`;
 
-export default function OrderPage({
-  initialOrder,
-  onUpdateOrder,
-  onCancelOrder,
-}) {
-  // Giả định dữ liệu ban đầu
+export default function OrderPage() {
   const [orders, setOrders] = useState([]);
-  console.log("order", orders);
-  // State quản lý chế độ Chỉnh sửa thông tin
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [activeFilter, setActiveFilter] = useState("ALL");
+  const [expandedOrderIds, setExpandedOrderIds] = useState([]);
   const [editingOrderId, setEditingOrderId] = useState(null);
-  const [formData, setFormData] = useState({
-    id: null,
-    name: "",
-    phone: "",
-    address: "",
-  });
-  console.log("formdata", formData);
-  // State quản lý Modal Hủy đơn
-  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [cancelReasonInput, setCancelReasonInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const token = localStorage.getItem("access_token");
+  const [saving, setSaving] = useState(false);
+  const [editError, setEditError] = useState("");
+  const [formData, setFormData] = useState({ name: "", phone: "", address: "" });
 
   useEffect(() => {
-    setLoading(true);
-    fetch(`http://localhost:8000/api/orders`, {
-      method: "get",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch order");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setOrders(data);
-        console.log("Fetched order data:", data);
-
-        console.log("form", orders);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.log("error", error);
-        setLoading(false);
-      });
+    let active = true;
+    const loadOrders = async () => {
+      try {
+        const response = await authFetch("http://localhost:8000/api/orders");
+        if (!response.ok) throw new Error(`Không thể tải đơn hàng (HTTP ${response.status})`);
+        const data = await response.json();
+        if (active) setOrders(Array.isArray(data) ? data : []);
+      } catch (err) {
+        if (active) setError(err.message || "Không thể tải đơn hàng.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    loadOrders();
+    return () => { active = false; };
   }, []);
 
-  const updateOrder = async (id, form) => {
-    fetch(`http://localhost:8000/api/orders/update/${id}`, {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(form),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to update order");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Fetched product data:", data);
-      })
-      .catch((error) => {
-        console.log("error", error);
+  const toggleDetails = (id) => {
+    setExpandedOrderIds((prev) =>
+      prev.includes(id) ? prev.filter((current) => current !== id) : [...prev, id]
+    );
+  };
+
+  const startEdit = (order) => {
+    setEditingOrderId(order.id);
+    setFormData({ name: order.name || "", phone: order.phone || "", address: order.address || "" });
+    setEditError("");
+    setExpandedOrderIds((prev) => prev.includes(order.id) ? prev : [...prev, order.id]);
+  };
+
+  const saveInfo = async (event, orderId) => {
+    event.preventDefault();
+    if (saving) return;
+    setSaving(true);
+    setEditError("");
+    try {
+      const response = await authFetch(`http://localhost:8000/api/orders/update/${orderId}`, {
+        method: "PUT",
+        body: JSON.stringify(formData),
       });
-  };
-
-  // Kiểm tra xem đơn hàng có được phép chỉnh sửa / hủy hay không
-  // const canModify = order.status === 'PENDING' || order.status === 'CONFIRMED';
-  // Xử lý lưu thay đổi thông tin
-  const handleSaveInfo = async (e) => {
-    e.preventDefault();
-    const updatedOrders = orders.map((order) => {
-      if (order.id === formData.id) {
-        return { ...order, ...formData };
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const detail = payload.error || payload.detail || "Không thể lưu thông tin đơn hàng.";
+        throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
       }
-
-      return order;
-    });
-    await updateOrder(formData.id, formData);
-    setOrders(updatedOrders);
-    setIsEditingInfo(null);
-    // if (onUpdateOrder) onUpdateOrder(updated);
+      // Preserve nested items/status if the API returns only a partial object.
+      setOrders((prev) => prev.map((order) =>
+        order.id === orderId ? { ...order, ...formData, ...(payload?.id === orderId ? payload : {}) } : order
+      ));
+      setEditingOrderId(null);
+    } catch (err) {
+      setEditError(err.message || "Lưu thông tin thất bại.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  // Xử lý xác nhận Hủy đơn
-  const handleConfirmCancel = (e) => {
-    // e.preventDefault();
-    // if (!cancelReasonInput.trim()) return;
-    // const updated = {
-    //   ...order,
-    //   status: 'CANCELLED',
-    //   cancel_reason: cancelReasonInput,
-    // };
-    // setOrder(updated);
-    // setIsCancelModalOpen(false);
-    // if (onCancelOrder) onCancelOrder(updated);
-  };
+  const visibleOrders = orders.filter((order) => activeFilter === "ALL" || order.status === activeFilter);
 
   return (
-    <>
-      {orders.map((order) => (
-        <div className=" bg-slate-50 p-4 md:p-8 font-sans text-slate-800 mt-20">
-          {/* {orders.map((order) => { */}
-          <div className="max-w-4xl mx-auto space-y-6">
-            {/* Header đơn hàng */}
-            {/* <Link to={`/product/${order.id}`}> */}
+    <main className="min-h-screen bg-[#F5F8FF] px-4 pb-14 pt-32 text-slate-800 md:px-8">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-7 flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight text-[#122D61] md:text-3xl">Đơn hàng của tôi</h1>
+            <p className="mt-1 text-sm text-slate-500">Theo dõi hành trình đơn hàng tại LapZone</p>
+          </div>
+          <span className="rounded-2xl bg-[#E7F0FF] p-3 text-[#174995]"><PackageCheck size={27} /></span>
+        </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-blue-100 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-3">
-                  <span className="p-2 bg-blue-50 text-blue-600 rounded-xl">
-                    <Package className="w-6 h-6" />
-                  </span>
-                  <div>
-                    <h1 className="text-xl font-bold text-slate-900">
-                      Đơn hàng #DH-{order.id}
-                    </h1>
-                    <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                      <Clock className="w-3.5 h-3.5" />
-                      {new Date(order.created_at).toLocaleString("vi-VN")}
-                    </p>
-                  </div>
-                </div>
-              </div>
+        <div className="mb-6 flex flex-wrap gap-2">
+          {FILTERS.map((filter) => (
+            <button key={filter.value} type="button" onClick={() => setActiveFilter(filter.value)}
+              className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${activeFilter === filter.value
+                ? "border-[#173B87] bg-[#173B87] text-white shadow-md shadow-blue-900/10"
+                : "border-blue-100 bg-white text-[#173B87] hover:border-blue-300 hover:bg-blue-50"}`}>
+              {filter.label}
+            </button>
+          ))}
+        </div>
 
-              <div className="flex items-center gap-3">
-                <span
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${STATUS_CONFIG[order.status]?.color}`}
-                >
-                  {STATUS_CONFIG[order.status]?.label || order.status}
-                </span>
-              </div>
-            </div>
-
-            {/* </Link> */}
-
-            {/* Cảnh báo / Lý do hủy nếu đơn bị hủy */}
-            {order.status === "CANCELLED" && (
-              <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-start gap-3 text-rose-800">
-                <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-sm">
-                    Đơn hàng này đã bị hủy
-                  </p>
-                  {order.cancel_reason && (
-                    <p className="text-sm mt-1 text-rose-700">
-                      Lý do: {order.cancel_reason}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Nội dung chính */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Cột trái: Thông tin nhận hàng (Cho phép Edit) */}
-              <div className="md:col-span-2 bg-white rounded-2xl shadow-sm border border-blue-100 p-6">
-                <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
-                  <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-blue-600" />
-                    Thông tin người nhận
-                  </h2>
-                  {/* {canModify && !isEditingInfo && ( */}
-                  <button
-                    onClick={() => {
-                      setEditingOrderId(order.id);
-
-                      setFormData({
-                        id: order.id,
-                        name: order.name,
-                        phone: order.phone,
-                        address: order.address,
-                      });
-                    }}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                    Chỉnh sửa
-                  </button>
-                </div>
-
-                {editingOrderId === order.id ? (
-                  /* Form cập nhật thông tin */
-                  <form onSubmit={handleSaveInfo} className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">
-                        Họ và tên
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.name}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            name: e.target.value,
-                            id: order.id,
-                          })
-                        }
-                        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">
-                        Số điện thoại
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        value={formData.phone}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            phone: e.target.value,
-                            id: order.id,
-                          })
-                        }
-                        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">
-                        Địa chỉ giao hàng
-                      </label>
-                      <textarea
-                        rows={3}
-                        required
-                        value={formData.address}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            address: e.target.value,
-                            id: order.id,
-                          })
-                        }
-                        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"
-                      />
-                    </div>
-
-                    <div className="flex justify-end gap-2 pt-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFormData({
-                            name: order.name,
-                            phone: order.phone,
-                            address: order.address,
-                          });
-                          setEditingOrderId(null);
-                        }}
-                        className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition"
-                      >
-                        Hủy
-                      </button>
-                      <button
-                        type="submit"
-                        className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition"
-                      >
-                        <Save className="w-3.5 h-3.5" />
-                        Lưu thay đổi
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  /* Hiển thị thông tin tĩnh */
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-center gap-3 text-slate-700">
-                      <User className="w-4 h-4 text-slate-400 shrink-0" />
-                      <span className="font-medium text-slate-900">
-                        {order.name}
+        {loading ? (
+          <div className="rounded-2xl bg-white p-12 text-center text-[#173B87]">Đang tải đơn hàng...</div>
+        ) : error ? (
+          <div role="alert" className="rounded-2xl border border-red-200 bg-white p-8 text-center text-red-600">{error}</div>
+        ) : visibleOrders.length === 0 ? (
+          <div className="rounded-2xl border border-blue-100 bg-white p-12 text-center shadow-sm">
+            <Search className="mx-auto mb-3 text-blue-300" size={34} />
+            <h2 className="font-semibold text-[#122D61]">{orders.length ? "Không có đơn hàng ở trạng thái này" : "Bạn chưa có đơn hàng nào"}</h2>
+            <p className="mt-2 text-sm text-slate-500">{orders.length ? "Hãy chọn trạng thái khác để xem đơn hàng." : "Đơn hàng sẽ xuất hiện tại đây sau khi bạn mua sắm."}</p>
+            {!orders.length && <Link to="/" className="mt-5 inline-block rounded-xl bg-[#173B87] px-5 py-2.5 text-sm font-semibold text-white">Xem sản phẩm</Link>}
+          </div>
+        ) : (
+          <div className="space-y-5">
+            {visibleOrders.map((order) => {
+              const expanded = expandedOrderIds.includes(order.id);
+              const step = STEP_LEVEL[order.status] ?? 0;
+              const canEdit = ["PENDING", "CONFIRMED"].includes(order.status);
+              return (
+                <article key={order.id} className="overflow-hidden rounded-2xl border border-[#DCE7FA] bg-white shadow-sm transition-shadow hover:shadow-md">
+                  <div className="p-5 md:p-6">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <span className="rounded-xl bg-[#EAF1FF] p-2.5 text-[#174995]"><Package size={21} /></span>
+                        <div>
+                          <h2 className="font-bold text-[#122D61]">Đơn hàng #DH-{order.id}</h2>
+                          <p className="mt-0.5 flex items-center gap-1 text-xs text-slate-500"><Clock size={13} />{order.created_at ? new Date(order.created_at).toLocaleString("vi-VN") : ""}</p>
+                        </div>
+                      </div>
+                      <span className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${STATUS_CONFIG[order.status]?.color || "bg-slate-50 text-slate-600 border-slate-200"}`}>
+                        {STATUS_CONFIG[order.status]?.label || order.status}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 text-slate-700">
-                      <Phone className="w-4 h-4 text-slate-400 shrink-0" />
-                      <span>{order.phone}</span>
+
+                    {order.status === "CANCELLED" ? (
+                      <div className="mt-5 flex items-start gap-2 rounded-xl border border-rose-100 bg-rose-50 p-3 text-sm text-rose-700">
+                        <AlertCircle size={18} className="mt-0.5 shrink-0" />
+                        <div><strong>Đơn hàng đã bị hủy.</strong>{order.cancel_reason && <p className="mt-1">Lý do: {order.cancel_reason}</p>}</div>
+                      </div>
+                    ) : (
+                      <div className="mt-6 rounded-xl bg-[#F2F6FF] p-4">
+                        <div className="grid grid-cols-4 gap-1">
+                          {STEPS.map(({ label, icon: Icon }, index) => (
+                            <div key={label} className="flex flex-col items-center gap-1.5 text-center">
+                              <Icon size={21} className={index <= step ? "text-[#2259BC]" : "text-slate-300"} />
+                              <span className={`text-[11px] font-medium sm:text-xs ${index <= step ? "text-[#173B87]" : "text-slate-400"}`}>{label}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#D5E2F9]">
+                          <div className="h-full rounded-full bg-[#2459BF] transition-all duration-300" style={{ width: `${(step / 3) * 100}%` }} />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-5 flex flex-col justify-between gap-3 border-b border-slate-100 pb-5 sm:flex-row sm:items-end">
+                      <div className="min-w-0 space-y-1 text-sm text-slate-600">
+                        <p><span className="font-medium text-slate-500">Người nhận:</span> {order.name}</p>
+                        <p className="break-words"><span className="font-medium text-slate-500">Địa chỉ:</span> {order.address}</p>
+                      </div>
+                      <div className="shrink-0 sm:text-right">
+                        <p className="text-xs text-slate-500">Tổng thanh toán</p>
+                        <p className="mt-1 text-xl font-extrabold text-[#174995]">{currency(order.total_amount)}</p>
+                      </div>
                     </div>
-                    <div className="flex items-start gap-3 text-slate-700">
-                      <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                      <span>{order.address}</span>
+
+                    {expanded && (
+                      <div className="mt-5 space-y-4">
+                        <section className="overflow-hidden rounded-xl border border-blue-100">
+                          <h3 className="bg-[#F5F8FF] px-4 py-3 text-sm font-bold text-[#122D61]">Sản phẩm đã mua</h3>
+                          {order.items?.length ? (
+                            <div className="overflow-x-auto">
+                              <table className="w-full min-w-[580px] text-sm">
+                                <thead className="border-y border-blue-100 bg-slate-50 text-slate-600"><tr><th className="px-4 py-3 text-left">Sản phẩm</th><th className="px-4 py-3 text-center">SL</th><th className="px-4 py-3 text-right">Đơn giá</th><th className="px-4 py-3 text-right">Thành tiền</th></tr></thead>
+                                <tbody className="divide-y divide-slate-100">{order.items.map((item) => (
+                                  <tr key={item.id}><td className="px-4 py-3 font-medium text-slate-700">{item.product_name || `Sản phẩm #${item.product}`}</td><td className="px-4 py-3 text-center">{item.quantity}</td><td className="whitespace-nowrap px-4 py-3 text-right">{currency(item.price)}</td><td className="whitespace-nowrap px-4 py-3 text-right font-semibold text-[#173B87]">{currency(Number(item.price) * Number(item.quantity))}</td></tr>
+                                ))}</tbody>
+                              </table>
+                            </div>
+                          ) : <p className="p-4 text-sm text-slate-500">Không có thông tin sản phẩm.</p>}
+                        </section>
+
+                        <div className="grid gap-4 md:grid-cols-3">
+                          <section className="rounded-xl border border-blue-100 p-4 md:col-span-2">
+                            <div className="mb-4 flex items-center justify-between gap-3">
+                              <h3 className="flex items-center gap-2 font-bold text-[#122D61]"><MapPin size={18} /> Thông tin người nhận</h3>
+                              {canEdit && editingOrderId !== order.id && <button type="button" onClick={() => startEdit(order)} className="flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold text-[#174995] hover:bg-blue-100"><Edit2 size={14} /> Chỉnh sửa</button>}
+                            </div>
+                            {editingOrderId === order.id ? (
+                              <form onSubmit={(event) => saveInfo(event, order.id)} className="space-y-3">
+                                {[{ key: "name", label: "Họ và tên" }, { key: "phone", label: "Số điện thoại" }, { key: "address", label: "Địa chỉ giao hàng" }].map(({ key, label }) => (
+                                  <label key={key} className="block text-xs font-semibold text-slate-600">{label}
+                                    {key === "address" ? <textarea required rows={3} value={formData[key]} onChange={(e) => setFormData((prev) => ({ ...prev, [key]: e.target.value }))} className="mt-1 w-full rounded-lg border border-blue-200 p-3 text-sm outline-none focus:border-blue-500" /> : <input required type={key === "phone" ? "tel" : "text"} value={formData[key]} onChange={(e) => setFormData((prev) => ({ ...prev, [key]: e.target.value }))} className="mt-1 w-full rounded-lg border border-blue-200 p-3 text-sm outline-none focus:border-blue-500" />}
+                                  </label>
+                                ))}
+                                {editError && <p role="alert" className="text-sm text-red-600">{editError}</p>}
+                                <div className="flex justify-end gap-2"><button type="button" disabled={saving} onClick={() => { setEditingOrderId(null); setEditError(""); }} className="rounded-lg border px-4 py-2 text-sm">Hủy</button><button type="submit" disabled={saving} className="flex items-center gap-2 rounded-lg bg-[#173B87] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"><Save size={15} />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button></div>
+                              </form>
+                            ) : (
+                              <div className="space-y-3 text-sm text-slate-700"><p className="flex gap-2"><User size={16} className="shrink-0 text-blue-500" />{order.name}</p><p className="flex gap-2"><Phone size={16} className="shrink-0 text-blue-500" />{order.phone}</p><p className="flex gap-2"><MapPin size={16} className="shrink-0 text-blue-500" />{order.address}</p></div>
+                            )}
+                          </section>
+                          <section className="rounded-xl border border-blue-100 p-4">
+                            <h3 className="mb-4 flex items-center gap-2 font-bold text-[#122D61]"><CreditCard size={18} /> Thanh toán</h3>
+                            <p className="text-xs text-slate-500">Phương thức</p><p className="mt-1 text-sm font-semibold">{PAYMENT_LABELS[order.payment_method] || order.payment_method}</p>
+                            <div className="mt-4 border-t border-blue-100 pt-3"><p className="text-xs text-slate-500">Tổng thanh toán</p><p className="mt-1 text-lg font-bold text-[#174995]">{currency(order.total_amount)}</p></div>
+                          </section>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-4 flex justify-end">
+                      <button type="button" onClick={() => toggleDetails(order.id)} aria-expanded={expanded}
+                        className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-white px-5 py-2.5 text-sm font-semibold text-[#173B87] transition hover:border-blue-400 hover:bg-blue-50">
+                        {expanded ? "Thu gọn" : "Xem chi tiết"}{expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      </button>
                     </div>
                   </div>
-                )}
-              </div>
-
-              {/* Cột phải: Thanh toán & Hành động */}
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl shadow-sm border border-blue-100 p-6">
-                  <h2 className="text-base font-bold text-slate-900 pb-3 mb-4 border-b border-slate-100 flex items-center gap-2">
-                    <CreditCard className="w-5 h-5 text-blue-600" />
-                    Thanh toán
-                  </h2>
-
-                  <div className="space-y-3 text-sm">
-                    <div>
-                      <p className="text-xs text-slate-500">Phương thức</p>
-                      <p className="font-semibold text-slate-800 mt-0.5">
-                        {PAYMENT_LABELS[order.payment_method] ||
-                          order.payment_method}
-                      </p>
-                    </div>
-
-                    <div className="pt-3 border-t border-slate-100">
-                      <p className="text-xs text-slate-500">
-                        Tổng tiền thanh toán
-                      </p>
-                      <p className="text-xl font-black text-blue-600 mt-1">
-                        {Number(order.total_amount).toLocaleString("vi-VN")} đ
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Nút hủy đơn hàng */}
-                {/* {canModify && ( */}
-                {/* <button
-                  onClick={() => setIsCancelModalOpen(true)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 rounded-2xl text-sm font-semibold transition shadow-sm"
-                >
-                  <XCircle className="w-4 h-4" />
-                  Hủy đơn hàng này
-                </button> */}
-                {/* )} */}
-              </div>
-            </div>
+                </article>
+              );
+            })}
           </div>
-
-          {/* Modal Hủy Đơn Hàng */}
-          {/* {isCancelModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-100 max-w-md w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 text-rose-500" />
-                  Xác nhận hủy đơn hàng
-                </h3>
-                <button
-                  onClick={() => setIsCancelModalOpen(false)}
-                  className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <form onSubmit={handleConfirmCancel} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Vui lòng nhập lý do hủy đơn <span className="text-rose-500">*</span>
-                  </label>
-                  <textarea
-                    rows={3}
-                    required
-                    placeholder="Ví dụ: Đổi địa chỉ nhận hàng, Muốn mua sản phẩm khác..."
-                    value={cancelReasonInput}
-                    onChange={(e) => setCancelReasonInput(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition resize-none"
-                  />
-                </div>
-
-                <div className="flex justify-end gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsCancelModalOpen(false)}
-                    className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition"
-                  >
-                    Quay lại
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={!cancelReasonInput.trim()}
-                    className="px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50 rounded-xl shadow-sm transition"
-                  >
-                    Xác nhận hủy
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )} */}
-        </div>
-      ))}
-      {orders.length === 0 && (
-        <div className="mt-20 flex flex-col items-center justify-center px-4 py-16 text-center">
-          {/* Icon đơn hàng */}
-          <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gray-100">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="h-12 w-12 text-gray-400"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 10.5V6a3.75 3.75 0 0 0-7.5 0v4.5m-4.5 0h16.5l1.5 10.5h-19.5l1.5-10.5Z"
-              />
-            </svg>
-          </div>
-
-          {/* Tiêu đề */}
-          <h1 className="mb-3 text-2xl font-bold text-gray-800">
-            Bạn chưa có đơn hàng nào
-          </h1>
-
-          {/* Mô tả */}
-          <p className="max-w-md text-sm leading-6 text-gray-500">
-            Các đơn hàng của bạn sẽ xuất hiện tại đây sau khi bạn đặt hàng thành công.
-          </p>
-
-          {/* Trạng thái */}
-          <div className="mt-8 rounded-xl border border-dashed border-gray-300 px-6 py-4">
-            <p className="text-sm text-gray-400">
-              Lịch sử đơn hàng của bạn đang trống
-            </p>
-          </div>
-        </div>
-      )}
-    </>
+        )}
+      </div>
+    </main>
   );
 }
