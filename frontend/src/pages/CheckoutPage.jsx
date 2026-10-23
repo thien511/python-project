@@ -52,7 +52,7 @@ export default function CheckoutPage() {
         });
         const data = await res.json();
         setPrice(data.order_id.total_amount);
-
+        console.log("jkhlhjhj",data)
         if (res.ok) {
           clearCart();
           setIsSubmitted(true);
@@ -296,7 +296,7 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between items-baseline">
                 <span className="text-xs text-slate-500">
-                  Mã đơn: #DH-202688
+                  
                 </span>
                 <span className="text-2xl font-bold text-white tracking-tight">
                   {formatPrice(total)} đ

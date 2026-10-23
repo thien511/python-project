@@ -47,7 +47,7 @@ def get_product(request, pk):
         serializer = ProductSerializer(product, context = {'request': request})
         return Response(serializer.data)
     except Product.DoesNotExist:
-        return Response({'error': 'Product not found'}, status=404)
+        return Response({'error': 'Product not found'}, status=404) 
 
 @api_view(['GET'])
 def get_categories(request):
@@ -131,7 +131,10 @@ def create_order(request):
         if not cart.items.exists():
             return Response({'error': 'Cart is empty'}, status=400)
         
-        total = sum([item.product.price * item.quantity for item in cart.items.all()])
+        total = sum(
+            [item.product.price * item.quantity 
+            for item in cart.items.all()]
+        )
 
         order = Order.objects.create(user = request.user, name = name, address = address, phone = phone,
                                      payment_method = payment_method, total_amount=total)
@@ -256,6 +259,7 @@ def check_sepay_payment(request):
         return Response({'success': False, 'message': 'Payment not found yet'})
     except Exception as e:
         return Response({'success': False, 'error': str(e)})
+    
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_product(request):
@@ -408,7 +412,7 @@ def manager_update_order_status(request, pk):
 
     new_status = request.data.get('status')
 
-    # Quy định những bước chuyển trạng thái hợp lệ
+    
     allowed_transitions = {
         'PENDING': ['CONFIRMED', 'CANCELLED'],
         'CONFIRMED': ['SHIPPED', 'CANCELLED'],

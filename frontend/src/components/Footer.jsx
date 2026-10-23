@@ -135,21 +135,21 @@ function Footer() {
               <p className="flex items-start gap-3">
                 <MapPin size={18} className="mt-0.5 shrink-0 text-blue-200" />
                 <span>
-                  Thông tin cửa hàng sẽ được cập nhật.
+                  Thông tin cửa hàng: 76 Man Thiện
                 </span>
               </p>
 
               <p className="flex items-start gap-3">
                 <Phone size={18} className="mt-0.5 shrink-0 text-blue-200" />
                 <span>
-                  Hotline hỗ trợ: Đang cập nhật
+                  Hotline hỗ trợ: 0983361733
                 </span>
               </p>
 
               <p className="flex items-start gap-3">
                 <Mail size={18} className="mt-0.5 shrink-0 text-blue-200" />
                 <span>
-                  Email hỗ trợ: Đang cập nhật
+                  Email hỗ trợ: projectpython@gmail.com
                 </span>
               </p>
 
